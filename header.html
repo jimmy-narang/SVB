@@ -19,29 +19,4 @@ var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
 console.log("Fetching images data from " + linkToImgDB);
 
 
-// Get the entire Image DB for this survey
-const images_raw = await d3.csv(linkToImgDB, (d) => {
-			return {
-				imgID: d.imgID, 
-				qualtricsID: d.qualtricsID,
-				qualtricsURL: ImgProperties.toQualtricsURL(d.qualtricsID),
-				externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
-				fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
-				veracity: ImgProperties.toBoolean(d.veracity),
-				style: d.style 
-			};
-		});
-		
-console.log(images_raw);
-
-// Filter out images with missing metadata; shuffle the rest.
-var images = d3.shuffle(images_raw.filter(d => 
-    d.imgID && 
-    d.qualtricsID && 
-    d.qualtricsID.startsWith("IM_") 
-    && d.veracity != null));
-
-// TODO: Ensure array of images is of "sufficient" length
-
-
 </script>
