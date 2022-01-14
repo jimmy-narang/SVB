@@ -1,4 +1,3 @@
-//@ts-check
 class ImgProperties {
 
 	constructor(){};
@@ -41,22 +40,6 @@ class ImgProperties {
 		return 'https://berkeley.ca1.qualtrics.com/CP/Graphic.php?IM=' + value;
 	}
 
-
-	// Get the entire Image DB for this survey
-	static async getImgDB(linkToImgDB) {
-		const imgDB = await d3.csv(linkToImgDB, (d) => {
-			return {
-				imgID: d.imgID, 
-				qualtricsID: d.qualtricsID,
-				qualtricsURL: ImgProperties.toQualtricsURL(d.qualtricsID),
-				externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
-				fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
-				veracity: ImgProperties.toBoolean(d.veracity),
-				style: d.style 
-			};
-		});
-		return imgDB;
-	}
 
 }
 

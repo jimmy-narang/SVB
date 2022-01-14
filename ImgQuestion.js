@@ -1,4 +1,3 @@
-//@ts-check
 /**
 * Subset of image-based questions in our surveys that need Javascript actions. 
 * The Enum value MUST BE stored as the attribute 'data-qtype' in the <img> tag. 

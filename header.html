@@ -1,13 +1,47 @@
-<script src="https://d3js.org/d3.v7.min.js"></script>
-
-
-<!-- <script src="https://cdn.jsdelivr.net/npm/d3-dsv@3"></script>
-<script src="https://cdn.jsdelivr.net/npm/d3-fetch@3"></script> -->
-
-<!--until we figure out a way to let Qualtrics library host javascript, 
-	all the code needs to be copy + pasted into this single file :( -->
 <script>
 
+// We use this to parse CSV files
+jQuery.getScript("https://d3js.org/d3.v7.min.js");
+
+// Class to read from /write to Qualtrics Embedded data
+jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/EmbeddedData.js")
+
+// Thin wrapper around our news stories' / images' properties.
+jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgProperties.js")
+
+// Event handlers for our custom question types
+jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestion.js")
+
+// Main header
+
+// Fetch images from this survey's image list (google sheet).
+var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
+console.log("Fetching images data from " + linkToImgDB);
+
+
+// Get the entire Image DB for this survey
+const images_raw = await d3.csv(linkToImgDB, (d) => {
+			return {
+				imgID: d.imgID, 
+				qualtricsID: d.qualtricsID,
+				qualtricsURL: ImgProperties.toQualtricsURL(d.qualtricsID),
+				externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
+				fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
+				veracity: ImgProperties.toBoolean(d.veracity),
+				style: d.style 
+			};
+		});
+		
+console.log(images_raw);
+
+// Filter out images with missing metadata; shuffle the rest.
+var images = d3.shuffle(images_raw.filter(d => 
+    d.imgID && 
+    d.qualtricsID && 
+    d.qualtricsID.startsWith("IM_") 
+    && d.veracity != null));
+
+// TODO: Ensure array of images is of "sufficient" length
 
 
 </script>

@@ -1,9 +1,7 @@
-//@ts-check
-
 /* CONSTANTS */
 
 // Localized versions of a substrings used in question text	
-const EMLOCALE = Object.freeze({
+var EMLOCALE = Object.freeze({
     TRUE: "TRUE", // "true"
     FALSE: "FALSE", // "false"
     SHARE: "SHARE", //User decided to "share" the story
@@ -15,7 +13,7 @@ const EMLOCALE = Object.freeze({
 
 // Names of dictionaries where we store WHICH images to show in each round,
 // as well as user's responses to them (where necessary).
-const EMDICT = Object.freeze({
+var EMDICT = Object.freeze({
     SHARING_CHOICES: "sharing_choices", //(sharer or receiver)
     PRIORS: "priors", //own priors (sharer or receiver)
     SHARER_PRIORS: "sharer_priors", // sharer's priors (receiver only)
@@ -24,7 +22,7 @@ const EMDICT = Object.freeze({
 });
 
 //Other constants in embedded data
-const EMMISC = Object.freeze({
+var EMMISC = Object.freeze({
     IMG_DB_URL: "img_db_url", //Location where this survey's images will be loaded from.
     WEAK_SIGNAL: "weak_signal", // Strength/ diagnosticity of the "weaker" signal
     STRONG_SIGNAL: "strong_signal", // Diagnosticity of the "stronger" signal
@@ -36,6 +34,7 @@ class EmbeddedData {
 
     /* METHODS */
 
+    
     // Just a wrapper to get a variable from embedded data.
     static getValue(varName) {
         //@ts-ignore
