@@ -2,7 +2,7 @@
 * Subset of image-based questions in our surveys that need Javascript actions. 
 * The Enum value MUST BE stored as the attribute 'data-qtype' in the <img> tag. 
 */
-const QTYPE = Object.freeze({
+var QTYPE = Object.freeze({
 
     // Question types common to both sharers and receivers survey
     C_PRIOR: 'C_PRIOR', //respondent's prior belief about a story
@@ -25,7 +25,7 @@ const QTYPE = Object.freeze({
  * PLACEHOLDERS: These blanks -- wherever found in QUESTION TEXT -- get replaced 
  * with localized strings that describe the sharer's choice/belief etc.
  */
-const BLANK = Object.freeze({
+var BLANK = Object.freeze({
     PRIOR: "_____",
     SHARING_CHOICE: "-----",
     SHARER_PRIOR: "XXXXX",

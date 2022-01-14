@@ -32,9 +32,6 @@ var EMMISC = Object.freeze({
 
 class EmbeddedData {
 
-    /* METHODS */
-
-    
     // Just a wrapper to get a variable from embedded data.
     static getValue(varName) {
         //@ts-ignore
