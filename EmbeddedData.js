@@ -38,9 +38,10 @@ class EmbeddedData {
         return Qualtrics.SurveyEngine.getEmbeddedData(varName);
     }
 
-    //Whether the object is a valid (if empty) dictionary. 
+    //Whether the object is a valid (if empty) array or dictionary. 
     static isDict(obj) {
-        return obj && typeof (obj) == "object" && !Array.isArray(obj)
+        //return obj && typeof (obj) == "object" && !Array.isArray(obj)
+        return obj && typeof (obj) == "object" 
     }
 
     // Retrieve a JSON object that was stored as Qualtrics embedded-data
@@ -49,7 +50,7 @@ class EmbeddedData {
         var embedStr = EmbeddedData.getValue(dictName);
         var obj = JSON.parse(embedStr);
         if (!EmbeddedData.isDict(obj)) {
-            console.error(`ERROR= embedded data ${embedStr} is not a valid dictionary. Resetting.`);
+            console.error(`ERROR: embedded data ${embedStr} is not a valid dictionary. Resetting.`);
             obj = {};
         }
         return (obj);
@@ -59,9 +60,5 @@ class EmbeddedData {
     static saveDict(dictName, dictVal) {
         Qualtrics.SurveyEngine.setEmbeddedData(dictName, JSON.stringify(dictVal));
     }
-
-    static getLMField(colNumber) {
-        return EmbeddedData.getValue("")
-    }
-
+    
 }

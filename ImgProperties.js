@@ -40,6 +40,28 @@ class ImgProperties {
 		return 'https://berkeley.ca1.qualtrics.com/CP/Graphic.php?IM=' + value;
 	}
 
+	static toArrOfImgProperties(images_raw){
+		return images_raw.map(function(d){
+			return {
+				imgID: d.imgID, 
+				qualtricsID: d.qualtricsID,
+				qualtricsURL: ImgProperties.toQualtricsURL(d.qualtricsID),
+				externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
+				fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
+				veracity: ImgProperties.toBoolean(d.veracity),
+				style: d.style 
+			}
+		}).filter(d => 
+			d.imgID && 
+			d.qualtricsID && 
+			d.qualtricsID.startsWith("IM_") 
+			&& d.veracity != null);
+	}
 
+	static toMapOfImgProperties(images_raw){
+		let temp = ImgProperties.toArrOfImgProperties(images_raw);
+		let map = new Map(temp.map((x) => [x.imgID, x]));
+		return map;
+	}
 }
 

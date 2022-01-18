@@ -5,21 +5,25 @@
 var QTYPE = Object.freeze({
 
     // Question types common to both sharers and receivers survey
-    C_PRIOR: 'C_PRIOR', //respondent's prior belief about a story
+    C_PRIOR: 'C_PRIOR', //respondent's prior about a story, 0-100%
+    C_PRIOR_BIN: 'C_PRIOR', //respondent's prior about a story, binary
     C_VERACITY: "C_VERACITY", // Final section, where the story's truth is revealed.
 
-    // Question types from the sharers survey
+    // Questions from the sharers survey
     S_SHARE: 'S_SHARE', //sharer's sharing choice,
     S_EXPLANATION: 'S_EXPLANATION', //sharer's explanation
+    S_SVB_DIRECT: "S_SVB_DIRECT", //Ask for credibility threshold directly
+    S_SVB_INDIRECT: "S_SVB_INDIRECT", //Ask for credibility threshold indirectly 
+    S_VIRALITY: "S_VIRALITY", //Ask if they've seen it before
 
-    // Question types from the receivers survey
+    // Questions from the receivers survey
     R_POST_RSB: 'R_POST_RSB', //Receiver's posterior after {R}evealing {S}harer's {B}elief.
     R_POST_RSBB: 'R_POST_RSBB', //Receiver's posterior after {R}evealing {S}harer's {B}elief in {B}inary form.
     R_POST_RSO: 'R_POST_RSO', //Receiver's posterior after {R}evealing {S}harer's decision ONLY if they {S}hared the story.
     R_POST_RSNS: 'R_POST_RSNS', //Receiver's posterior after {R}evealing  {S}harer's decision either way: {S}hare/{N}ot share.
     R_POST_SW: 'R_POST_SW', //Receiver's posterior after seeing a (weak) signal 
     R_POST_SS: 'R_POST_SS' //Receiver's posterior after seeing a (strong) signal
-})
+});
 
 /**
  * PLACEHOLDERS: These blanks -- wherever found in QUESTION TEXT -- get replaced 
@@ -47,7 +51,7 @@ class ImgQuestion {
         // @ts-ignore. Confirm this is a valid Qualtrics question.
         this.DOM = jQuery('#' + QID)[0];
         if (!this.DOM) {
-            throw new TypeError(`no QID ${QID}  found`);
+            throw new TypeError(`no QID ${QID} found`);
         }
         let questionId = this.DOM.getAttribute('questionid');
         if (!questionId || questionId != QID) {
@@ -55,37 +59,41 @@ class ImgQuestion {
         }
 
         // Obtain question type from Embedded data.
-        
         this._qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
         // throw new TypeError(`${this._qType} is not one of ${QTYPE}`);
         // console.error("ERROR: Img question does not appear to have a valid type");
-        
-        // Get/Set the IMG ID for this question.
 
+        // Determine which image to load
         switch (this._qType) {
 
-            // This is a loop & merge type of question: the image
-            // to be loaded depends on the current loop number.
             case QTYPE.R_POST_RSB:
+            case QTYPE.R_POST_RSBB:
+                //Load image from sharer_priors
                 break;
-            case QTYPE.R_POST_RSB:
+
+            case QTYPE.R_POST_RSNS:
+            case QTYPE.R_POST_RSO:
+                //Load image from sharing_choices
                 break;
-            case QTYPE.R_POST_RSB:
+
+            case QTYPE.R_POST_SS:
+            case QTYPE.R_POST_SW:
+                //Load image from signals
                 break;
-            
+
+            case QTYPE.S_EXPLANATION:
+                //Load image from sharing_choices (at random)
+                break;
+
             // This is a static Img question. The image ID is hard-coded
             // as an attribute
-        
+            case QTYPE.C_PRIOR:
+            case QTYPE.C_VERACITY:
+            case QTYPE.S_SHARE:
+
+                break;
             default:
                 break;
-        }
-        try {
-            this.imgID = this.getImgAttribute('data-imgid');
-        }
-        finally {
-            if (!this.imgID) {
-                throw new TypeError('data-imgid empty or not found');
-            }
         }
 
     }
@@ -149,23 +157,10 @@ class ImgQuestion {
         this.DOM.getElementsBySelector(" .QuestionText")[0].innerHTML = str;
     }
 
-    // Back up method to infer q-type if tag is missing.
-    // InferQType() {
-    //     if (this.handle.hasClassName('Slider')) {
-    //         return 'prior';
-    //     } else if (this.handle.hasClassName('MC') &&
-    //         this.handle.getElementsBySelector('input')[0].hasClassName('radio')) {
-    //         return 'prior_bin';
-    //     } else {
-    //         return 'share';
-    //     }
-    // }
-
-
     /* EVENT HANDLERS */
 
     //Applicable to Receivers
-    handleSignal() {
+    onLoadSignalQ() {
 
         var signalStrength = parseFloat(EmbeddedData.getValue(
             (this.qType == QTYPE.R_POST_SW)? EMMISC.WEAK_SIGNAL : EMMISC.STRONG_SIGNAL
@@ -186,7 +181,7 @@ class ImgQuestion {
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
-    handleRevealedShare() {
+    onLoadRevealedShareQ() {
 
         var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
         var scStr = '';
@@ -211,7 +206,7 @@ class ImgQuestion {
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
-    handleRevealedBelief() {
+    onLoadRevealedBeliefQ() {
 
         var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
         var scStr = '';
@@ -238,7 +233,7 @@ class ImgQuestion {
     }
 
     //Reveal if the story was actually true or false, and list references.
-    handleVeracity() {
+    onLoadVeracityQ() {
 
         let links = this.imgProperties.external_urls.map(x => `<a href=${x}>${EMLOCALE.HERE}</a>`).join(', ');
         let verStr = (this.imgProperties.veracity) ? EMLOCALE.TRUE : EMLOCALE.FALSE;
@@ -251,10 +246,18 @@ class ImgQuestion {
         this.questionText = this.questionText.replace(BLANK.VERACITY, verStr).replace(BLANK.LINKS, links);
     }
 
-    handleExplanation() {
+    onLoadExplanationQ() {
         var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
         var scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSHARE);
         this.questionText = this.questionText.replace(BLANK.SHARING_CHOICE, scStr);
+    }
+
+    onLoadSharingQ(){
+
+    }
+
+    onLoadPriorQ(){
+
     }
 
     // Event handler for when a question is loaded.
@@ -264,24 +267,35 @@ class ImgQuestion {
 
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
-                this.handleSignal();
+                this.onLoadSignalQ();
                 return;
 
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
-                this.handleRevealedShare();
+                this.onLoadRevealedShareQ();
                 return;
 
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_RSBB:
-                this.handleRevealedBelief();
+                this.onLoadRevealedBeliefQ();
                 return;
 
             case QTYPE.S_EXPLANATION:
-                this.handleExplanation();
+                this.onLoadExplanationQ();
+                return;
+            
+            case QTYPE.S_SHARE:
+                this.onLoadSharingQ();
+                return;
+
+            case QTYPE.C_PRIOR:
+            case QTYPE.C_PRIOR_BIN:
+                this.onLoadPriorQ();
+                return;
 
             case QTYPE.C_VERACITY:
-                this.handleVeracity();
+                this.onLoadVeracityQ();
+                return;
 
             default:
                 //Do nothing
