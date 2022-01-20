@@ -62,40 +62,6 @@ class ImgQuestion {
         this._qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
         // throw new TypeError(`${this._qType} is not one of ${QTYPE}`);
         // console.error("ERROR: Img question does not appear to have a valid type");
-
-        // Determine which image to load
-        switch (this._qType) {
-
-            case QTYPE.R_POST_RSB:
-            case QTYPE.R_POST_RSBB:
-                //Load image from sharer_priors
-                break;
-
-            case QTYPE.R_POST_RSNS:
-            case QTYPE.R_POST_RSO:
-                //Load image from sharing_choices
-                break;
-
-            case QTYPE.R_POST_SS:
-            case QTYPE.R_POST_SW:
-                //Load image from signals
-                break;
-
-            case QTYPE.S_EXPLANATION:
-                //Load image from sharing_choices (at random)
-                break;
-
-            // This is a static Img question. The image ID is hard-coded
-            // as an attribute
-            case QTYPE.C_PRIOR:
-            case QTYPE.C_VERACITY:
-            case QTYPE.S_SHARE:
-
-                break;
-            default:
-                break;
-        }
-
     }
 
     // Get image attribute

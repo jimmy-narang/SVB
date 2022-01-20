@@ -14,21 +14,41 @@ var EMLOCALE = Object.freeze({
 // Names of dictionaries where we store WHICH images to show in each round,
 // as well as user's responses to them (where necessary).
 var EMDICT = Object.freeze({
-    SHARING_CHOICES: "sharing_choices", //(sharer or receiver)
-    PRIORS: "priors", //own priors (sharer or receiver)
-    SHARER_PRIORS: "sharer_priors", // sharer's priors (receiver only)
-    SIGNALS: "signals", // signals shown to the sharer
-    IMAGES: "images" //the set of 20? images (and properties) to be shown to the user.
+    SHARING_CHOICES: "sharing_choices", //dict of sharing_choices (sharer or receiver)
+    PRIORS: "priors", //dict of own priors (sharer or receiver)
+    SHARER_PRIORS: "sharer_priors", // dict of sharer's priors (receiver only)
+    SIGNALS: "signals", // dict of signals shown to the sharer
+    IMAGES: "images", //Array of images (and properties) to be shown to the user.
+});
+
+var EMQLIST = Object.freeze({
+    S_EXP: "exp_list", //Ask explanations for these images.
+    S_SVB: "svb_list", // elicit credibility threshold (directly or indirectly) for these images
+    S_VIR: "virality_list", // ask if these images were seen before
+    R_RSB: "rev_beliefs_list", // elicit posterior after revealing sharer's beliefs (RSB, RSBB)
+    R_RSC: "rev_share_list", // elicit posterior after revealing sharering choice (RSO, RSNS)
+    R_SW: "signal_weak_list", // elicit posterior after revealing a weak signal (SW)
+    R_SS: "signal_strong_list" // elicit posterior after revealing a strong signal (SS)
 });
 
 //Other constants in embedded data
 var EMMISC = Object.freeze({
+    SURVEY_TYPE: "survey_type", // One of "sharer" or "receiver" (case insensitive)
     IMG_DB_URL: "img_db_url", //Location where this survey's images will be loaded from.
     WEAK_SIGNAL: "weak_signal", // Strength/ diagnosticity of the "weaker" signal
     STRONG_SIGNAL: "strong_signal", // Diagnosticity of the "stronger" signal
-    QUESTION_TYPE: "question_type" // The type of question (set as em.data at the start of each block).
+    QUESTION_TYPE: "question_type", // The type of question (set as em.data at the start of each block).
+    IS_SET: "is_set", // whether we have decided which images to show in each round.
+    MAXQ: 20, // length of the priors / sharing_choices round.
+    MEDQ: 4, // length of most loops
+    MINQ: 2 // length of expensive loops
 });
 
+var EMSURVEYTYPE = Object.freeze({
+    SHARER: "sharer",
+    RECEIVER: "receiver",
+    FOLLOW_UP: "follow_up"
+});
 
 class EmbeddedData {
 
@@ -36,6 +56,14 @@ class EmbeddedData {
     static getValue(varName) {
         //@ts-ignore
         return Qualtrics.SurveyEngine.getEmbeddedData(varName);
+    }
+
+    static getSurveyType(){
+        let st = EmbeddedData.getValue(EMMISC.SURVEY_TYPE);
+        if (Object.values(EMSURVEYTYPE).includes(st)){
+            return st;
+        }
+        return null;
     }
 
     //Whether the object is a valid (if empty) array or dictionary. 
