@@ -6,7 +6,7 @@ var QTYPE = Object.freeze({
 
     // Question types common to both sharers and receivers survey
     C_PRIOR: 'C_PRIOR', //respondent's prior about a story, 0-100%
-    C_PRIOR_BIN: 'C_PRIOR', //respondent's prior about a story, binary
+    C_PRIOR_BIN: 'C_PRIOR_BIN', //respondent's prior about a story, binary
     C_VERACITY: "C_VERACITY", // Final section, where the story's truth is revealed.
 
     // Questions from the sharers survey
