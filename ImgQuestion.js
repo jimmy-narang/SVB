@@ -219,10 +219,22 @@ class ImgQuestion {
     }
 
     onLoadSharingQ(){
-
+        //Save the sharer's choice
+        this.DOM.onchange = function(){            
+            var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
+            console.log('saving ' + this.response + "for " + this.imgID);
+            sc[this.imgID] = this.response;
+            EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
+        };
     }
 
     onLoadPriorQ(){
+        this.DOM.onchange = function(){
+            var priors = EmbeddedData.getDict(EMDICT.PRIORS);
+            console.log('saving ' + this.response + "for " + this.imgID);
+            priors[this.imgID] = this.response;
+            EmbeddedData.saveDict(EMDICT.PRIORS, priors);      
+        }
 
     }
 
