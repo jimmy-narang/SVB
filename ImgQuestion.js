@@ -44,9 +44,10 @@ class ImgQuestion {
      * Initialize with a handle to the question object OR the question ID.
      * @param {string} QID the Qualtrics question ID.
      */
-    constructor(QID) {
+    constructor(QID, imgID = null, loadImg = true) {
 
         this.QID = QID;
+        this.imgID = imgID;
 
         // @ts-ignore. Confirm this is a valid Qualtrics question.
         this.DOM = jQuery('#' + QID)[0];
@@ -58,10 +59,29 @@ class ImgQuestion {
             throw new TypeError(`QID ${QID} does not match questionid ${questionId}`);
         }
 
+        if (!this.img){
+            
+            //Try loading it from the DOM attribute
+            this.img = this.getImgAttribute('data-imgid');
+
+            // Try getting it from src
+            if(!this.img){
+                src = this.getImgAttribute('src');
+                let images = EmbeddedData.getDict(EMDICT.IMAGES);
+                return images.filter(x => x.qualtricsURL == src)[0].imgID;
+            }
+            //IF it's still null, is it the placeholder?
+        } 
+
         // Obtain question type from Embedded data.
         this._qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
         // throw new TypeError(`${this._qType} is not one of ${QTYPE}`);
         // console.error("ERROR: Img question does not appear to have a valid type");
+
+        if(loadImg){
+            this.loadImageIntoQ();
+        }
+
     }
 
     // Get image attribute
@@ -114,13 +134,31 @@ class ImgQuestion {
     }
 
     get imgProperties() {
-        let images = EmbeddedData.getDict(EMDICT.IMAGES);
-        return images.filter(x => x.imgID == this.imgID)[0];
+        
+        if(!this._imgProp & this.imgID){    
+            let images = EmbeddedData.getDict(EMDICT.IMAGES);
+            this._imgProp = images.filter(x => x.imgID == this.imgID)[0];
+        }
+        return this._imgProp;
+    }
+
+    set imgProperties(value){
+        if(value){
+            this._imgProp = value;
+            this.loadImageIntoQ();
+        }
     }
 
     // Set question text.    
     set questionText(str) {
         this.DOM.getElementsBySelector(" .QuestionText")[0].innerHTML = str;
+    }
+
+    loadImageIntoQ(){
+        let that = document.querySelector("[id='" + this.QID + "'] img");
+        that.src = this.imgProperties.qualtricsURL;
+        that.style = this.imgProperties.style;
+        that.setAttribute("data-imgid", this.imgID);
     }
 
     /* EVENT HANDLERS */
@@ -219,13 +257,7 @@ class ImgQuestion {
     }
 
     onLoadSharingQ(){
-        //Save the sharer's choice
-        this.DOM.onchange = function(){            
-            var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
-            console.log('saving ' + this.response + "for " + this.imgID);
-            sc[this.imgID] = this.response;
-            EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
-        };
+        // Nothing to do.
     }
 
     onLoadPriorQ(){
@@ -281,25 +313,4 @@ class ImgQuestion {
         }
     }
 
-    // Event handler for when the user submits their answer.
-    onSubmitAnswer() {
-        switch (this.qType) {
-
-            case QTYPE.C_PRIOR:
-                var priors = EmbeddedData.getDict(EMDICT.PRIORS);
-                priors[this.imgID] = this.response;
-                EmbeddedData.saveDict(EMDICT.PRIORS, priors);
-                return;
-
-            case QTYPE.S_SHARE:
-                var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
-                sc[this.imgID] = this.response;
-                EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
-                return;
-
-            //NOTE: The signal is saved onLoad(), and not onSubmit(). 
-            default:
-                return;
-        }
-    }
 }
