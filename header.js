@@ -89,7 +89,8 @@ function loadImageIntoQ(QID, imgProp) {
 
 // Event handler that saves the user's response in Embedded data.
 function  onSubmitAnswer() {
-    var Q = new ImgQuestion(this.questionid, null, false);
+    let QID = this.id.split('~')[1];
+    var Q = new ImgQuestion(QID, null, false);
         switch (Q.qType) {
 
             case QTYPE.C_PRIOR:
@@ -134,7 +135,7 @@ function loadImgQsOnPage(imgList){
         let j = (questions.length * cl) + i;
 
         // Load into Img into Q; change the question text.
-        let Q = new ImgQuestion(questions[i].QuestionID,imgList[j]);
+        let Q = new ImgQuestion(questions[i].QuestionID,imgList[j], true);
         Q.onLoadQuestion();
     }
 

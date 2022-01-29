@@ -67,14 +67,14 @@ class ImgQuestion {
             let img_id = this.getImgAttribute('data-imgid');
             let matches = images.filter(x => x.qualtricsURL == img_id)
             if (matches && matches.length > 0) {
-                this._imgProp = [0];
+                this._imgProp = matches[0];
             } else {
                 // Try searching by source URL
                 console.log("trying to load imgID from attribute src")
                 let src = this.getImgAttribute('src')
                 let matches = images.filter(x => x.qualtricsURL == src)
                 if (matches && matches.length > 0)
-                    this._imgProp = [0];
+                    this._imgProp = matches[0];
                 else {
                     console.warn('No img properties found for ' + this.QID + ". Defaulting to placeholder");
                     this._imgProp = { imgID: "placeholder" };
