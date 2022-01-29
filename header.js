@@ -1,6 +1,4 @@
-/****************************
- * 			MAIN			*			
- ***************************/
+//@ts-check
 
 if (typeof (d3) !== "function") {
     jQuery.getScript("https://d3js.org/d3.v7.min.js");
@@ -12,7 +10,7 @@ if (typeof (ImgProperties) !== "function") {
     jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgProperties.js");
 }
 if (typeof (ImgQuestion) !== "function") {
-    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestion.js");
+    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestionStatic.js");
 }
 
 
@@ -94,6 +92,7 @@ function  onSubmitAnswer() {
         switch (Q.qType) {
 
             case QTYPE.C_PRIOR:
+            case QTYPE.C_PRIOR_BIN:
                 var priors = EmbeddedData.getDict(EMDICT.PRIORS);
                 priors[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.PRIORS, priors);

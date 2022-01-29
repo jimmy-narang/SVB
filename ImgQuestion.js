@@ -1,3 +1,5 @@
+//@ts-check
+
 /**
 * Subset of image-based questions in our surveys that need Javascript actions. 
 * The Enum value MUST BE stored as the attribute 'data-qtype' in the <img> tag. 
@@ -114,18 +116,22 @@ class ImgQuestion {
 
         switch (this.qType) {
 
-            // A belief elicitation question (prior or posterior).
+            // Binary radio button
+            case QTYPE.C_PRIOR_BIN:
+                return parseInt(jQuery("#" + this.QID + " :checked").val()) == 1;
+            
+            // Slider question
             case QTYPE.C_PRIOR:
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
-                return this.DOM.getElementsBySelector(' .ChoiceStructure input')[0].value;
+                return jQuery("#" + this.QID + " input").val();  
 
-            // A sharing choice elicitation question. TODO: There HAS to be a better way!
+            // Checkbox question with one option
             case QTYPE.S_SHARE:
-                return this.DOM.getElementsBySelector('label')[0].hasClassName('q-checked');
+                return jQuery("#" + this.QID + " :checked").length;
 
             default:
                 return null;
@@ -134,6 +140,10 @@ class ImgQuestion {
 
     get imgProperties() {
         return this._imgProp;
+    }
+
+    get imgID(){
+        return this._imgProp.imgID;
     }
 
     set imgProperties(value) {
@@ -151,7 +161,9 @@ class ImgQuestion {
 
     loadImageIntoQ() {
         let that = document.querySelector("[id='" + this.QID + "'] img");
+        // @ts-ignore
         that.src = this.imgProperties.qualtricsURL;
+        // @ts-ignore
         that.style = this.imgProperties.style;
         that.setAttribute("data-imgid", this.imgID);
     }
@@ -254,13 +266,7 @@ class ImgQuestion {
     }
 
     onLoadPriorQ() {
-        this.DOM.onchange = function () {
-            var priors = EmbeddedData.getDict(EMDICT.PRIORS);
-            console.log('saving ' + this.response + "for " + this.imgID);
-            priors[this.imgID] = this.response;
-            EmbeddedData.saveDict(EMDICT.PRIORS, priors);
-        }
-
+        // Nothing to do.
     }
 
     // Event handler for when a question is loaded.

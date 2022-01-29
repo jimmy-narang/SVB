@@ -116,18 +116,22 @@ class ImgQuestion {
 
         switch (this.qType) {
 
-            // A belief elicitation question (prior or posterior).
+            // Binary radio button
+            case QTYPE.C_PRIOR_BIN:
+                return parseInt(jQuery("#" + this.QID + " :checked").val()) == 1;
+            
+            // Slider question
             case QTYPE.C_PRIOR:
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
-                return this.DOM.getElementsBySelector(' .ChoiceStructure input')[0].value;
+                return jQuery("#" + this.QID + " input").val();  
 
-            // A sharing choice elicitation question. TODO: There HAS to be a better way!
+            // Checkbox question with one option
             case QTYPE.S_SHARE:
-                return this.DOM.getElementsBySelector('label')[0].hasClassName('q-checked');
+                return jQuery("#" + this.QID + " :checked").length;
 
             default:
                 return null;

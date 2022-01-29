@@ -1,3 +1,5 @@
+//@ts-check
+
 /* CONSTANTS */
 
 // Localized versions of a substrings used in question text	
