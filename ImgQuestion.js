@@ -44,10 +44,9 @@ class ImgQuestion {
      * Initialize with a handle to the question object OR the question ID.
      * @param {string} QID the Qualtrics question ID.
      */
-    constructor(QID, imgID = null, loadImg = true) {
+    constructor(QID, imgProp = null, loadImg = false) {
 
         this.QID = QID;
-        this.imgID = imgID;
 
         // @ts-ignore. Confirm this is a valid Qualtrics question.
         this.DOM = jQuery('#' + QID)[0];
@@ -59,36 +58,40 @@ class ImgQuestion {
             throw new TypeError(`QID ${QID} does not match questionid ${questionId}`);
         }
 
-        if (!this.img){
-            
-            //Try loading it from the DOM attribute
-            this.img = this.getImgAttribute('data-imgid');
-
-            // Try getting it from src
-            if(!this.img){
-                src = this.getImgAttribute('src');
-                let images = EmbeddedData.getDict(EMDICT.IMAGES);
-                return images.filter(x => x.qualtricsURL == src)[0].imgID;
+        if (imgProp) {
+            this._imgProp = imgProp;
+        } else {
+            // Try loading through data-imgid
+            let images = EmbeddedData.getDict(EMDICT.IMAGES);
+            console.log("trying to load imgID from attribute data-imgid")
+            let img_id = this.getImgAttribute('data-imgid');
+            let matches = images.filter(x => x.qualtricsURL == img_id)
+            if (matches && matches.length > 0) {
+                this._imgProp = [0];
+            } else {
+                // Try searching by source URL
+                console.log("trying to load imgID from attribute src")
+                let src = this.getImgAttribute('src')
+                let matches = images.filter(x => x.qualtricsURL == src)
+                if (matches && matches.length > 0)
+                    this._imgProp = [0];
+                else {
+                    console.warn('No img properties found for ' + this.QID + ". Defaulting to placeholder");
+                    this._imgProp = { imgID: "placeholder" };
+                }
             }
-            //IF it's still null, is it the placeholder?
-        } 
+        }
 
-        // Obtain question type from Embedded data.
-        this._qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
-        // throw new TypeError(`${this._qType} is not one of ${QTYPE}`);
-        // console.error("ERROR: Img question does not appear to have a valid type");
-
-        if(loadImg){
+        if (loadImg) {
             this.loadImageIntoQ();
         }
 
     }
 
     // Get image attribute
-    getImgAttribute(attribute){
+    getImgAttribute(attribute) {
         return this.DOM.getElementsBySelector(" .QuestionText Img")[0].getAttribute(attribute);
     }
-
 
     // Return a binary signal about veracity that's accurate with probability p
     static generateSignal(p, veracity) {
@@ -96,12 +99,12 @@ class ImgQuestion {
         return (veracity) ? signal : !signal;
     }
 
-    // The getters below extract values from DOM
-
     get qType() {
-        return this._qType;
-        //TODO: if not available through data-qtype, try inferring
+        return EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
+        //TODO: if not available, try inferring through data-qtype
     }
+
+    // The getters below extract values from DOM
 
     get questionText() {
         return this.DOM.getElementsBySelector(" .QuestionText")[0].innerHTML
@@ -129,21 +132,13 @@ class ImgQuestion {
         }
     }
 
-    get handle() {
-        return this.DOM;
-    }
-
     get imgProperties() {
-        
-        if(!this._imgProp & this.imgID){    
-            let images = EmbeddedData.getDict(EMDICT.IMAGES);
-            this._imgProp = images.filter(x => x.imgID == this.imgID)[0];
-        }
         return this._imgProp;
     }
 
-    set imgProperties(value){
-        if(value){
+    set imgProperties(value) {
+        //TODO: check if value is valid imgProperties type
+        if (value) {
             this._imgProp = value;
             this.loadImageIntoQ();
         }
@@ -154,7 +149,7 @@ class ImgQuestion {
         this.DOM.getElementsBySelector(" .QuestionText")[0].innerHTML = str;
     }
 
-    loadImageIntoQ(){
+    loadImageIntoQ() {
         let that = document.querySelector("[id='" + this.QID + "'] img");
         that.src = this.imgProperties.qualtricsURL;
         that.style = this.imgProperties.style;
@@ -166,11 +161,9 @@ class ImgQuestion {
     //Applicable to Receivers
     onLoadSignalQ() {
 
-        var signalStrength = parseFloat(EmbeddedData.getValue(
-            (this.qType == QTYPE.R_POST_SW)? EMMISC.WEAK_SIGNAL : EMMISC.STRONG_SIGNAL
-        ));
-           
         // Generate the signal
+        let sType = (this.qType == QTYPE.R_POST_SW) ? EMMISC.WEAK_SIGNAL : EMMISC.STRONG_SIGNAL
+        var signalStrength = parseFloat(EmbeddedData.getValue(sType));
         var signal = ImgQuestion.generateSignal(signalStrength, this.imgProperties.veracity);
         console.log(`Generated signal ${signal} of diagnosticity ${signalStrength} for ${this.imgID}`)
 
@@ -256,16 +249,16 @@ class ImgQuestion {
         this.questionText = this.questionText.replace(BLANK.SHARING_CHOICE, scStr);
     }
 
-    onLoadSharingQ(){
+    onLoadSharingQ() {
         // Nothing to do.
     }
 
-    onLoadPriorQ(){
-        this.DOM.onchange = function(){
+    onLoadPriorQ() {
+        this.DOM.onchange = function () {
             var priors = EmbeddedData.getDict(EMDICT.PRIORS);
             console.log('saving ' + this.response + "for " + this.imgID);
             priors[this.imgID] = this.response;
-            EmbeddedData.saveDict(EMDICT.PRIORS, priors);      
+            EmbeddedData.saveDict(EMDICT.PRIORS, priors);
         }
 
     }
@@ -293,7 +286,7 @@ class ImgQuestion {
             case QTYPE.S_EXPLANATION:
                 this.onLoadExplanationQ();
                 return;
-            
+
             case QTYPE.S_SHARE:
                 this.onLoadSharingQ();
                 return;

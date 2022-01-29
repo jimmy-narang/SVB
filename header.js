@@ -94,13 +94,13 @@ function  onSubmitAnswer() {
 
             case QTYPE.C_PRIOR:
                 var priors = EmbeddedData.getDict(EMDICT.PRIORS);
-                priors[Q.imgProperties.imgID] = Q.response;
+                priors[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.PRIORS, priors);
                 return;
 
             case QTYPE.S_SHARE:
                 var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
-                sc[Q.imgProperties.imgID] = Q.response;
+                sc[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
                 return;
 
@@ -194,7 +194,9 @@ function loadPage() {
 }
 
 Qualtrics.SurveyEngine.addOnload(function () {
+
     Qualtrics.SurveyEngine.setEmbeddedData("test", "test");
+    console.log(Qualtrics.SurveyEngine.getEmbeddedData("test"))
     loadPage();
 
 }); 
