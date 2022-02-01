@@ -243,15 +243,12 @@ class ImgQuestion {
 
     //Reveal if the story was actually true or false, and list references.
     onLoadVeracityQ() {
-
         let links = this.imgProperties.external_urls.map(x => `<a href=${x}>${EMLOCALE.HERE}</a>`).join(', ');
-        let verStr = (this.imgProperties.veracity) ? EMLOCALE.TRUE : EMLOCALE.FALSE;
-
+        let verStr = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
         //If we faked the story, add a disclaimer saying so. 
         if (!this.imgProperties.veracity && this.imgProperties.fakedByUs) {
             verStr = verStr + EMLOCALE.FAKED;
         }
-
         this.questionText = this.questionText.replace(BLANK.VERACITY, verStr).replace(BLANK.LINKS, links);
     }
 

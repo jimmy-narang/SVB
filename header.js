@@ -1,5 +1,6 @@
 //@ts-check
 
+
 if (typeof (d3) !== "function") {
     jQuery.getScript("https://d3js.org/d3.v7.min.js");
 }
@@ -87,9 +88,10 @@ function loadImageIntoQ(QID, imgProp) {
 
 // Event handler that saves the user's response in Embedded data.
 function  onSubmitAnswer() {
-    let QID = this.id.split('~')[1];
+    var qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
+    let QID = this.id.split('~').find(x => x.includes("QID"));
     var Q = new ImgQuestion(QID, null, false);
-        switch (Q.qType) {
+        switch (qType) {
 
             case QTYPE.C_PRIOR:
             case QTYPE.C_PRIOR_BIN:
@@ -135,7 +137,7 @@ function loadImgQsOnPage(imgList){
 
         // Load into Img into Q; change the question text.
         let Q = new ImgQuestion(questions[i].QuestionID,imgList[j], true);
-        Q.onLoadQuestion();
+        Q.onLoadQuestion();        
     }
 
 }
