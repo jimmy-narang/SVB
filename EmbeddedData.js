@@ -9,8 +9,10 @@ var EMLOCALE = Object.freeze({
     SHARE: "SHARE", //User decided to "share" the story
     NOSHARE: "NOSHARE", //User decided to "NOT share" the story
     NOSEE: "NOSEE", //User "either didn't see or decided to not share" the story
-    FAKED: "FAKED", //"In fact, it was faked/photoshopped by us."
-    HERE: "HERE", // See "here"
+    HERE: "HERE", // See "here",
+    VER_FAKED: "VER_FAKED", //"In fact, it was faked/photoshopped by us."
+    VER_TRUE: "VER_TRUE", //"See here for the original news article."
+    VER_FALSE: "VER_FALSE" // See here for a fact-check
 });
 
 // Names of dictionaries where we store WHICH images to show in each round,

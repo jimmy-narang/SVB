@@ -241,16 +241,25 @@ class ImgQuestion {
 
     }
 
+    
     //Reveal if the story was actually true or false, and list references.
     onLoadVeracityQ() {
-        let links = this.imgProperties.externalUrls.map(x => `<a href=${x} rel="noopener noreferrer nofollow" 
-        target="_blank">${EMLOCALE.HERE}</a>`).join(', ');
-        let verStr = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
-        //If we faked the story, add a disclaimer saying so. 
-        if (!this.imgProperties.veracity && this.imgProperties.fakedByUs) {
-            verStr = verStr + EMLOCALE.FAKED;
+
+        // Get the locale-specific, formatted strings for "here", "true", "false" etc.
+        let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
+        let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
+     
+        // In addition to the story's veracity, we also need to include links to the fact-check, source article, etc.
+        let links = this.imgProperties.externalURLs.map(link => 
+            `<a href=${link} rel="noopener noreferrer nofollow" target="_blank">${here_lc}</a>`).join(', ');
+   
+        if (this.imgProperties.veracity){
+            ver_lc = ver_lc + ' <br> ' + EmbeddedData.getValue(EMLOCALE.VER_TRUE); 
+        } else {
+            let fake_str = (this.imgProperties.fakedByUs) ? EmbeddedData.getValue(EMLOCALE.VER_FAKED) : EmbeddedData.getValue(EMLOCALE.VER_FALSE)
+            ver_lc = ver_lc + ' <br> ' + fake_str; 
         }
-        this.questionText = this.questionText.replace(BLANK.VERACITY, verStr).replace(BLANK.LINKS, links);
+        this.questionText = this.questionText.replace(BLANK.VERACITY, ver_lc).replace(BLANK.LINKS, links);
     }
 
     onLoadExplanationQ() {
