@@ -243,7 +243,7 @@ class ImgQuestion {
 
     //Reveal if the story was actually true or false, and list references.
     onLoadVeracityQ() {
-        let links = this.imgProperties.externalUrls.map(x => `<a href=${x} rel="noopener noreferrer nofollow" 
+        let links = this.imgProperties.externalURLs.map(x => `<a href=${x} rel="noopener noreferrer nofollow" 
         target="_blank">${EMLOCALE.HERE}</a>`).join(', ');
         let verStr = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
         //If we faked the story, add a disclaimer saying so. 
