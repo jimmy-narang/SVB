@@ -91,6 +91,7 @@ class EmbeddedData {
 
     // Save a JSON object as qualtrics embedded data.
     static saveDict(dictName, dictVal) {
+        //@ts-ignore
         Qualtrics.SurveyEngine.setEmbeddedData(dictName, JSON.stringify(dictVal));
     }
     

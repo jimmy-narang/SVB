@@ -1,16 +1,21 @@
 //@ts-check
 
 
+// @ts-ignore
 if (typeof (d3) !== "function") {
+    // @ts-ignore
     jQuery.getScript("https://d3js.org/d3.v7.min.js");
 }
 if (typeof (EmbeddedData) !== "function") {
+    // @ts-ignore
     jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/EmbeddedData.js");
 }
 if (typeof (ImgProperties) !== "function") {
+    // @ts-ignore
     jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgProperties.js");
 }
 if (typeof (ImgQuestion) !== "function") {
+    // @ts-ignore
     jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestionStatic.js");
 }
 
@@ -43,6 +48,7 @@ if (!is_set) {
     console.log("Creating image lists for other rounds");
 
     // temporary array that gets chopped up to assign images to each round.
+    // @ts-ignore
     let shuffled = d3.shuffle(images);
     var list_map = null;
 
@@ -72,6 +78,7 @@ if (!is_set) {
     }
 
     // Done. set is_set
+    // @ts-ignore
     Qualtrics.SurveyEngine.setEmbeddedData(EMMISC.IS_SET, 1);
 }
 
@@ -81,7 +88,9 @@ function loadImageIntoQ(QID, imgProp) {
     // Traditional d3 selector does not work with IDs that start with numbers
     console.log("Loading image " + imgProp + " into " + QID);
     let that = document.querySelector("[id='" + QID + "'] img");
+    // @ts-ignore
     that.src = imgProp.qualtricsURL;
+    // @ts-ignore
     that.style = imgProp.style;
 }
 
@@ -90,8 +99,10 @@ function loadImageIntoQ(QID, imgProp) {
 function recordTime(key, dictName){
     var dict = EmbeddedData.getDict(dictName);
     if (!dict[key]){
+        // @ts-ignore
         dict[key] = [jQuery.now()];
     } else {
+        // @ts-ignore
         dict[key].push(jQuery.now());
     }
     EmbeddedData.saveDict(dictName, dict);
@@ -132,6 +143,7 @@ function onClickLink(){
 function loadImgQsOnPage(imgList){
     
     // Get the list of image questions on this page
+    // @ts-ignore
     let questions = Object.values(Qualtrics.SurveyEngine.QuestionInfo).filter(
         (x) => x.QuestionText.match("<img.*>"));
 
@@ -201,11 +213,13 @@ function loadPage() {
         case QTYPE.C_PRIOR_BIN:
         case QTYPE.S_SHARE:
             loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
+            // @ts-ignore
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
         
         case QTYPE.C_VERACITY:
             loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
+            // @ts-ignore
             jQuery("a.veracity_link").click(onClickLink);
             break;
         
@@ -216,9 +230,12 @@ function loadPage() {
     }
 }
 
+// @ts-ignore
 Qualtrics.SurveyEngine.addOnload(function () {
 
+    // @ts-ignore
     Qualtrics.SurveyEngine.setEmbeddedData("test", "test");
+    // @ts-ignore
     console.log(Qualtrics.SurveyEngine.getEmbeddedData("test"))
     loadPage();
 

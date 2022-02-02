@@ -118,6 +118,7 @@ class ImgQuestion {
 
             // Binary radio button
             case QTYPE.C_PRIOR_BIN:
+                // @ts-ignore
                 return parseInt(jQuery("#" + this.QID + " :checked").val()) == 1;
             
             // Slider question
@@ -127,10 +128,12 @@ class ImgQuestion {
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
+                // @ts-ignore
                 return jQuery("#" + this.QID + " input").val();  
 
             // Checkbox question with one option
             case QTYPE.S_SHARE:
+                // @ts-ignore
                 return jQuery("#" + this.QID + " :checked").length;
 
             default:
@@ -217,7 +220,9 @@ class ImgQuestion {
     //Applicable to Receivers, except in the case of sharer's explanations.
     onLoadRevealedBeliefQ() {
 
+        // @ts-ignore
         var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
+        // @ts-ignore
         var scStr = '';
         var prior = null;
 
