@@ -243,7 +243,6 @@ class ImgQuestion {
             default:
                 throw new TypeError("Revealed-belief handler called for invalid question type");
         }
-
     }
 
     
@@ -254,6 +253,8 @@ class ImgQuestion {
         let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
         let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
 
+        let new_txt = this.questionText.replace(BLANK.VERACITY, ver_lc) + '<br>';
+ 
         // Attach "https://" to the beginning of a link, if it doesn't already exist.
         let extURLs = this.imgProperties.externalURLs.map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
         
@@ -261,14 +262,24 @@ class ImgQuestion {
         let links = extURLs.map((url, i) => 
             `<a href=${url} rel="noopener noreferrer nofollow" target="_blank" class="veracity_link" id="link~${this.imgID}~${i}">${here_lc}</a>`).join(', ');
    
+        let style = "";
+
         if (this.imgProperties.veracity){
-            ver_lc = ver_lc + ' <br> ' + EmbeddedData.getValue(EMLOCALE.VER_TRUE); 
+            style="5px solid #00ff00;"
+            new_txt = new_txt + EmbeddedData.getValue(EMLOCALE.VER_TRUE);
+             
         } else {
+            style="5px solid #ff0000;"
             let fake_str = (this.imgProperties.fakedByUs) ? EmbeddedData.getValue(EMLOCALE.VER_FAKED) : EmbeddedData.getValue(EMLOCALE.VER_FALSE)
-            ver_lc = ver_lc + ' <br> ' + fake_str; 
+            new_txt = new_txt + fake_str; 
         }
-        this.questionText = this.questionText.replace(BLANK.VERACITY, ver_lc).replace(BLANK.LINKS, links);
+
+        this.questionText = new_txt.replace(BLANK.LINKS, links);
+        //@ts-ignore
+        jQuery('#' + this.imgID + " img").css({'border':style})
     }
+    
+    
 
     onLoadExplanationQ() {
         var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
