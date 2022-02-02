@@ -23,6 +23,7 @@ var EMDICT = Object.freeze({
     SHARER_PRIORS: "sharer_priors", // dict of sharer's priors (receiver only)
     SIGNALS: "signals", // dict of signals shown to the sharer
     IMAGES: "images", //Array of images (and properties) to be shown to the user.
+    LINK_CLICKS: "link_clicks" // How often was each link clicked.
 });
 
 var EMQLIST = Object.freeze({

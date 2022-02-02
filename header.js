@@ -86,6 +86,18 @@ function loadImageIntoQ(QID, imgProp) {
 }
 
 
+// Records every instance of when this entity ('key') was clicked
+function recordTime(key, dictName){
+    var dict = EmbeddedData.getDict(dictName);
+    if (!dict[key]){
+        dict[key] = [jQuery.now()];
+    } else {
+        dict[key].push(jQuery.now());
+    }
+    EmbeddedData.saveDict(dictName, dict);
+}
+
+
 // Event handler that saves the user's response in Embedded data.
 function  onSubmitAnswer() {
     var qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
@@ -98,12 +110,14 @@ function  onSubmitAnswer() {
                 var priors = EmbeddedData.getDict(EMDICT.PRIORS);
                 priors[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.PRIORS, priors);
+                recordTime(Q.imgID, EMDICT.LINK_CLICKS);
                 return;
 
             case QTYPE.S_SHARE:
                 var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
                 sc[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
+                recordTime(Q.imgID, EMDICT.LINK_CLICKS);
                 return;
 
             //NOTE: The signal is saved onLoad(), and not onSubmit(). 

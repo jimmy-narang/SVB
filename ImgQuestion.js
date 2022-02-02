@@ -251,7 +251,7 @@ class ImgQuestion {
      
         // In addition to the story's veracity, we also need to include links to the fact-check, source article, etc.
         let links = this.imgProperties.externalURLs.map(link => 
-            `<a href=${link} rel="noopener noreferrer nofollow" target="_blank">${here_lc}</a>`).join(', ');
+            `<a href=${link} rel="noopener noreferrer nofollow" target="_blank" class="veracity-link">${here_lc}</a>`).join(', ');
    
         if (this.imgProperties.veracity){
             ver_lc = ver_lc + ' <br> ' + EmbeddedData.getValue(EMLOCALE.VER_TRUE); 
