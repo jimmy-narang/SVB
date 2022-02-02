@@ -63,9 +63,9 @@ class EmbeddedData {
         return Qualtrics.SurveyEngine.getEmbeddedData(varName);
     }
 
-    static getSurveyType(){
+    static getSurveyType() {
         let st = EmbeddedData.getValue(EMMISC.SURVEY_TYPE);
-        if (Object.values(EMSURVEYTYPE).includes(st)){
+        if (Object.values(EMSURVEYTYPE).includes(st)) {
             return st;
         }
         return null;
@@ -74,7 +74,7 @@ class EmbeddedData {
     //Whether the object is a valid (if empty) array or dictionary. 
     static isDict(obj) {
         //return obj && typeof (obj) == "object" && !Array.isArray(obj)
-        return obj && typeof (obj) == "object" 
+        return obj && typeof (obj) == "object"
     }
 
     // Retrieve a JSON object that was stored as Qualtrics embedded-data
@@ -94,5 +94,5 @@ class EmbeddedData {
         //@ts-ignore
         Qualtrics.SurveyEngine.setEmbeddedData(dictName, JSON.stringify(dictVal));
     }
-    
+
 }

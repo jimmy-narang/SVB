@@ -16,7 +16,7 @@ if (typeof (ImgProperties) !== "function") {
 }
 if (typeof (ImgQuestion) !== "function") {
     // @ts-ignore
-    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestionStatic.js");
+    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestion.js");
 }
 
 
@@ -71,7 +71,7 @@ if (!is_set) {
 
     if (list_map) {
         list_map.forEach((value, key) => {
-            let arr = shuffled.splice(0,value);
+            let arr = shuffled.splice(0, value);
             EmbeddedData.saveDict(key, arr);
             console.log("For " + key + ", saved " + arr);
         });
@@ -96,9 +96,9 @@ function loadImageIntoQ(QID, imgProp) {
 
 
 // Records every instance of when this entity ('key') was clicked
-function recordTime(key, dictName){
+function recordTime(key, dictName) {
     var dict = EmbeddedData.getDict(dictName);
-    if (!dict[key]){
+    if (!dict[key]) {
         // @ts-ignore
         dict[key] = [jQuery.now()];
     } else {
@@ -110,51 +110,51 @@ function recordTime(key, dictName){
 
 
 // Event handler that saves the user's response in Embedded data.
-function  onSubmitAnswer() {
+function onSubmitAnswer() {
     var qType = EmbeddedData.getValue(EMMISC.QUESTION_TYPE);
     let QID = this.id.split('~').find(x => x.includes("QID"));
     var Q = new ImgQuestion(QID, null, false);
-        switch (qType) {
+    switch (qType) {
 
-            case QTYPE.C_PRIOR:
-            case QTYPE.C_PRIOR_BIN:
-                var priors = EmbeddedData.getDict(EMDICT.PRIORS);
-                priors[Q.imgID] = Q.response;
-                EmbeddedData.saveDict(EMDICT.PRIORS, priors);
-                return;
+        case QTYPE.C_PRIOR:
+        case QTYPE.C_PRIOR_BIN:
+            var priors = EmbeddedData.getDict(EMDICT.PRIORS);
+            priors[Q.imgID] = Q.response;
+            EmbeddedData.saveDict(EMDICT.PRIORS, priors);
+            return;
 
-            case QTYPE.S_SHARE:
-                var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
-                sc[Q.imgID] = Q.response;
-                EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
-                return;
+        case QTYPE.S_SHARE:
+            var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
+            sc[Q.imgID] = Q.response;
+            EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
+            return;
 
-            //NOTE: The signal is saved onLoad(), and not onSubmit(). 
-            default:
-                return;
-        }
+        //NOTE: The signal is saved onLoad(), and not onSubmit(). 
+        default:
+            return;
     }
+}
 
-function onClickLink(){
+function onClickLink() {
     let imgID = this.id.split('~')[1]; //The second element is the image ID
     recordTime(imgID, EMDICT.LINK_CLICKS);
 }
 
-function loadImgQsOnPage(imgList){
-    
+function loadImgQsOnPage(imgList) {
+
     // Get the list of image questions on this page
     // @ts-ignore
     let questions = Object.values(Qualtrics.SurveyEngine.QuestionInfo).filter(
         (x) => x.QuestionText.match("<img.*>"));
 
-        
+
     // If this is a Loop 'n Merge page, get the loop number 
-    let cl = parseInt("${lm://CurrentLoopNumber}"); 
+    let cl = parseInt("${lm://CurrentLoopNumber}");
     console.log('Current loop no.:' + cl);
     if (isNaN(cl)) {
         //This is NOT a loop and merge page
         console.error("Invalid / empty loop number");
-        cl = 0; 
+        cl = 0;
     } else {
         cl = cl - 1; //L&M indexing starts at 1, not 0
     }
@@ -164,10 +164,9 @@ function loadImgQsOnPage(imgList){
         let j = (questions.length * cl) + i;
 
         // Load into Img into Q; change the question text.
-        let Q = new ImgQuestion(questions[i].QuestionID,imgList[j], true);
-        Q.onLoadQuestion();        
+        let Q = new ImgQuestion(questions[i].QuestionID, imgList[j], true);
+        Q.onLoadQuestion();
     }
-
 }
 
 function loadPage() {
@@ -179,7 +178,7 @@ function loadPage() {
     switch (qType) {
 
         case QTYPE.R_POST_RSB:
-        case QTYPE.R_POST_RSBB: 
+        case QTYPE.R_POST_RSBB:
             loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.R_RSB));
             break;
 
@@ -216,13 +215,12 @@ function loadPage() {
             // @ts-ignore
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
-        
+
         case QTYPE.C_VERACITY:
             loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
             // @ts-ignore
             jQuery("a.veracity_link").click(onClickLink);
             break;
-        
 
         default:
             console.log("IN DEFAULT: " + qType);
