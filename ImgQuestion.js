@@ -248,10 +248,13 @@ class ImgQuestion {
         // Get the locale-specific, formatted strings for "here", "true", "false" etc.
         let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
         let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
-     
+
+        // Attach "https://" to the beginning of a link, if it doesn't already exist.
+        let extURLs = this.imgProperties.externalURLs.map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
+        
         // In addition to the story's veracity, we also need to include links to the fact-check, source article, etc.
-        let links = this.imgProperties.externalURLs.map(link => 
-            `<a href=${link} rel="noopener noreferrer nofollow" target="_blank" class="veracity-link">${here_lc}</a>`).join(', ');
+        let links = extURLs.map((url, i) => 
+            `<a href=${url} rel="noopener noreferrer nofollow" target="_blank" class="veracity_link" id="link~${this.imgID}~${i}">${here_lc}</a>`).join(', ');
    
         if (this.imgProperties.veracity){
             ver_lc = ver_lc + ' <br> ' + EmbeddedData.getValue(EMLOCALE.VER_TRUE); 

@@ -110,14 +110,12 @@ function  onSubmitAnswer() {
                 var priors = EmbeddedData.getDict(EMDICT.PRIORS);
                 priors[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.PRIORS, priors);
-                recordTime(Q.imgID, EMDICT.LINK_CLICKS);
                 return;
 
             case QTYPE.S_SHARE:
                 var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
                 sc[Q.imgID] = Q.response;
                 EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
-                recordTime(Q.imgID, EMDICT.LINK_CLICKS);
                 return;
 
             //NOTE: The signal is saved onLoad(), and not onSubmit(). 
@@ -126,6 +124,10 @@ function  onSubmitAnswer() {
         }
     }
 
+function onClickLink(){
+    let imgID = this.id.split('~')[1]; //The second element is the image ID
+    recordTime(imgID, EMDICT.LINK_CLICKS);
+}
 
 function loadImgQsOnPage(imgList){
     
@@ -198,10 +200,15 @@ function loadPage() {
         case QTYPE.C_PRIOR:
         case QTYPE.C_PRIOR_BIN:
         case QTYPE.S_SHARE:
-        case QTYPE.C_VERACITY:
             loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
+        
+        case QTYPE.C_VERACITY:
+            loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
+            jQuery("a.veracity_link").click(onClickLink);
+            break;
+        
 
         default:
             console.log("IN DEFAULT: " + qType);
