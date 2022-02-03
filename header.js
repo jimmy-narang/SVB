@@ -55,6 +55,29 @@ function onClickLink() {
     recordTime(imgID, EMDICT.LINK_CLICKS);
 }
 
+function getLoopNumberOld() {
+    // Old Method. Worked before but failing now :( 
+    let cl = parseInt("${lm://CurrentLoopNumber}");
+    if (isNaN(cl)) {
+        console.error("Invalid / empty loop number. Setting CL to 0");
+        return 0;
+    } else {
+        return cl - 1; //L&M indexing starts at 1, not 0
+    }
+}
+
+function getLoopNumber() {
+    // Loop and Merge questions have IDs of type loopnumber_xxQID 
+    let cl = Object.keys(Qualtrics.SurveyEngine.QuestionInfo)[0].split("_")[0];
+    if (jQuery.isNumeric(cl) && !isNaN(parseInt(cl))) {
+        return parseInt(cl) - 1;
+    } else {
+        console.error("Invalid / empty loop number. Setting CL to 0");
+        return 0;
+    }
+}
+
+
 function loadImgQsOnPage(imgList) {
 
     // Get the list of image questions on this page
@@ -62,17 +85,7 @@ function loadImgQsOnPage(imgList) {
     let questions = Object.values(Qualtrics.SurveyEngine.QuestionInfo).filter(
         (x) => x.QuestionText.match("<img.*>"));
 
-
-    // If this is a Loop 'n Merge page, get the loop number 
-    let cl = parseInt("${lm://CurrentLoopNumber}");
-    console.log('Current loop no.:' + cl);
-    if (isNaN(cl)) {
-        //This is NOT a loop and merge page
-        console.error("Invalid / empty loop number");
-        cl = 0;
-    } else {
-        cl = cl - 1; //L&M indexing starts at 1, not 0
-    }
+    var cl = getLoopNumber();
 
     // Replace image placeholders with the appropriate images 
     for (let i = 0; i < questions.length; i++) {
