@@ -254,11 +254,8 @@ class ImgQuestion {
         let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
         let new_txt = this.questionText.replace(BLANK.VERACITY, ver_lc) + '<br>';
 
-        // Attach "https://" to the beginning of a link, if it doesn't already exist.
-        let extURLs = this.imgProperties.externalURLs.map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
-
         // In addition to the story's veracity, we also need to include links to the fact-check, source article, etc.
-        let links = extURLs.map((url, i) =>
+        let links = this.imgProperties.externalURLs.map((url, i) =>
             `<a href=${url} rel="noopener noreferrer nofollow" target="_blank" class="veracity_link" id="link~${this.imgID}~${i}">${here_lc}</a>`).join(', ');
 
         let style = "";

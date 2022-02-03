@@ -1,0 +1,39 @@
+<script>
+    
+is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
+if (!is_set) {
+    jQuery.when(
+        jQuery.getScript("https://d3js.org/d3.v7.min.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/EmbeddedData.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgProperties.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestion.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/header.js"),
+        jQuery.Deferred(function (deferred) {
+            jQuery(deferred.resolve);
+        })
+    ).done(function () {
+
+        console.log("Libraries loaded."); 
+        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
+        
+        // Fetch and save the list of images (and properties) for this pilot.
+        var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
+        console.log("Fetching images data from " + linkToImgDB);
+        d3.csv(linkToImgDB).then(getImgDB);
+        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 2);
+        
+        // Assign images to different rounds
+        assignImgsToRounds();
+        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 3);
+        
+        // Attach to onLoad.
+        Qualtrics.SurveyEngine.addOnload(function () {
+            loadPage();
+        }); 
+    });
+} else {
+    console.log('Libraries already loaded. Loading page.');
+    //loadPage();
+}
+
+</script>

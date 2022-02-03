@@ -25,17 +25,24 @@ class ImgProperties {
 
 	//Convert a URL, a concatenated string of URLs, or a single URL to an array of URL(s).
 	static toArrayOfURLs(value) {
+
+		let extURLs = null;
+
 		if (typeof (value) == 'string' && (/\s/).test(value)) {
-			return value.split(/\s/);
+			extURLs = value.split(/\s/);
 		} else if (typeof (value) == 'string') {
-			return [value];
+			extURLs = [value];
 		} else if (Array.isArray(value)) {
-			return value;
+			extURLs = value;
 		}
 		else {
 			console.error(`${value} is an invalid externalURLs type.`);
 			return [];
 		}
+
+		// Attach "https://" to the beginning of a link, if it doesn't already exist.
+		extURLs = extURLs.map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
+		return extURLs;
 	}
 
 	static toQualtricsURL(value) {

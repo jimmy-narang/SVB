@@ -1,88 +1,5 @@
 //@ts-check
 
-
-// @ts-ignore
-if (typeof (d3) !== "function") {
-    // @ts-ignore
-    jQuery.getScript("https://d3js.org/d3.v7.min.js");
-}
-if (typeof (EmbeddedData) !== "function") {
-    // @ts-ignore
-    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/EmbeddedData.js");
-}
-if (typeof (ImgProperties) !== "function") {
-    // @ts-ignore
-    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgProperties.js");
-}
-if (typeof (ImgQuestion) !== "function") {
-    // @ts-ignore
-    jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/ImgQuestion.js");
-}
-
-
-let is_set = ImgProperties.toBoolean(EmbeddedData.getValue(EMMISC.IS_SET));
-let load_images = false;
-var images = EmbeddedData.getDict(EMDICT.IMAGES);
-
-if (!is_set) {
-
-    /*
-    if(load_images){
-        console.log("is_set is false; loading images from gDrive");
-
-        var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
-        console.log("Fetching images data from " + linkToImgDB);
-        let images_raw = await ImgProperties.getImgDB(linkToImgDB);
-    
-        // Filter out images with missing metadata; shuffle the rest.
-        var images = d3.shuffle(images_raw.filter(d => 
-            d.imgID && 
-            d.qualtricsID && 
-            d.qualtricsID.startsWith("IM_") 
-            && d.veracity != null));
-    
-        EmbeddedData.saveDict(EMDICT.IMAGES, images);    
-    }
-    */
-
-    console.log("Creating image lists for other rounds");
-
-    // temporary array that gets chopped up to assign images to each round.
-    // @ts-ignore
-    let shuffled = d3.shuffle(images);
-    var list_map = null;
-
-    if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
-        // This is a sharer's survey
-        list_map = new Map([
-            [EMQLIST.S_EXP, EMMISC.MEDQ],
-            [EMQLIST.S_SVB, EMMISC.MEDQ],
-            [EMQLIST.S_VIR, EMMISC.MEDQ]
-        ]);
-    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
-        // This is a receiver's survey
-        list_map = new Map([
-            [EMQLIST.R_RSB, EMMISC.MEDQ],
-            [EMQLIST.R_RSC, EMMISC.MEDQ],
-            [EMQLIST.R_SW, EMMISC.MEDQ],
-            [EMQLIST.R_SS, EMMISC.MEDQ],
-        ]);
-    }
-
-    if (list_map) {
-        list_map.forEach((value, key) => {
-            let arr = shuffled.splice(0, value);
-            EmbeddedData.saveDict(key, arr);
-            console.log("For " + key + ", saved " + arr);
-        });
-    }
-
-    // Done. set is_set
-    // @ts-ignore
-    Qualtrics.SurveyEngine.setEmbeddedData(EMMISC.IS_SET, 1);
-}
-
-
 function loadImageIntoQ(QID, imgProp) {
     // Clear any pre-existing image
     // Traditional d3 selector does not work with IDs that start with numbers
@@ -93,7 +10,6 @@ function loadImageIntoQ(QID, imgProp) {
     // @ts-ignore
     that.style = imgProp.style;
 }
-
 
 // Records every instance of when this entity ('key') was clicked
 function recordTime(key, dictName) {
@@ -107,7 +23,6 @@ function recordTime(key, dictName) {
     }
     EmbeddedData.saveDict(dictName, dict);
 }
-
 
 // Event handler that saves the user's response in Embedded data.
 function onSubmitAnswer() {
@@ -228,13 +143,70 @@ function loadPage() {
     }
 }
 
-// @ts-ignore
-Qualtrics.SurveyEngine.addOnload(function () {
+function getImgDB(data) {
 
-    // @ts-ignore
-    Qualtrics.SurveyEngine.setEmbeddedData("test", "test");
-    // @ts-ignore
-    console.log(Qualtrics.SurveyEngine.getEmbeddedData("test"))
-    loadPage();
+    console.log(`Raw data contains ${data.length} rows`);
 
-}); 
+    // Convert each row to a standardized object 
+    var images_raw = data.map((d) => {
+        return {
+            imgID: d.imgID,
+            qualtricsID: d.qualtricsID,
+            qualtricsURL: ImgProperties.toQualtricsURL(d.qualtricsID),
+            externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
+            fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
+            veracity: ImgProperties.toBoolean(d.veracity),
+            style: d.style
+        };
+    });
+
+    // Filter out images with missing metadata; shuffle the rest.
+    // @ts-ignore
+    var images = d3.shuffle(images_raw.filter(d =>
+        d.imgID &&
+        d.qualtricsID &&
+        d.qualtricsID.startsWith("IM_")
+        && d.veracity != null));
+
+    console.log(`Final list contains ${images.length} objects`);
+    // Save the list
+    EmbeddedData.saveDict(EMDICT.IMAGES, images);
+    console.log("Images saved:" + JSON.stringify(EmbeddedData.getDict(EMDICT.IMAGES)));
+}
+
+// Now create image lists for all other rounds
+function assignImgsToRounds() {
+
+    console.log("Creating image lists for other rounds");
+    var images = EmbeddedData.getDict(EMDICT.IMAGES);
+    // temporary array that gets chopped up to assign images to each round.
+    // @ts-ignore
+    let shuffled = d3.shuffle(images);
+    var list_map = null;
+
+    if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
+        // This is a sharer's survey
+        list_map = new Map([
+            [EMQLIST.S_EXP, EMMISC.MEDQ],
+            [EMQLIST.S_SVB, EMMISC.MEDQ],
+            [EMQLIST.S_VIR, EMMISC.MEDQ]
+        ]);
+    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
+        // This is a receiver's survey
+        list_map = new Map([
+            [EMQLIST.R_RSB, EMMISC.MEDQ],
+            [EMQLIST.R_RSC, EMMISC.MEDQ],
+            [EMQLIST.R_SW, EMMISC.MEDQ],
+            [EMQLIST.R_SS, EMMISC.MEDQ],
+        ]);
+    }
+
+    if (list_map) {
+        list_map.forEach((value, key) => {
+            let arr = shuffled.splice(0, value);
+            EmbeddedData.saveDict(key, arr);
+            console.log("For " + key + ", saved " + arr);
+        });
+    }
+    console.log("images assignment complete.");
+}
