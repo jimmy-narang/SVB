@@ -1,40 +1,30 @@
 <script>
-    
-is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
-if (!is_set) {
-    jQuery.when(
-        jQuery.getScript("https://d3js.org/d3.v7.min.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
-        jQuery.Deferred(function (deferred) {
-            jQuery(deferred.resolve);
-        })
-    ).done(function () {
+    is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
+    if (!is_set) {
+        jQuery.when(
+            jQuery.getScript("https://d3js.org/d3.v7.min.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
+            jQuery.Deferred(function (deferred) {
+                jQuery(deferred.resolve);
+            })
+        ).done(function () {
+            console.log("Libraries loaded.");
+            Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
+            var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
+            console.log("Fetching images data from " + linkToImgDB);
 
-        console.log("Libraries loaded."); 
-        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
-        
-        // Fetch and save the list of images (and properties) for this pilot.
-        var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
-        console.log("Fetching images data from " + linkToImgDB);
-
-        d3.csv(linkToImgDB).then(
-            getImgDB).then(function(){
+            d3.csv(linkToImgDB).then(
+                // Fetch images from google sheets
+                getImgDB).then(function () {
                 // Assign images to different rounds
-                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 2);        
                 assignImgsToRounds();
-                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 3);
             });
-        
-    });
-} else {
-    console.log('Libraries already loaded. Loading page.');
-    // Attach to onLoad.
-    //Qualtrics.SurveyEngine.addOnload(function () {
+        });
+    } else {
+        console.log('Libraries already loaded. Loading page.');
         loadPage();
-    //}); 
-}
-
+    }
 </script>

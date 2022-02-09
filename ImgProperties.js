@@ -2,7 +2,7 @@
 
 class ImgProperties {
 
-	constructor() { };
+	constructor() {};
 
 	//Convert value to a boolean
 	static toBoolean(value) {
@@ -34,8 +34,7 @@ class ImgProperties {
 			extURLs = [value];
 		} else if (Array.isArray(value)) {
 			extURLs = value;
-		}
-		else {
+		} else {
 			console.error(`${value} is an invalid externalURLs type.`);
 			return [];
 		}
@@ -63,8 +62,8 @@ class ImgProperties {
 		}).filter(d =>
 			d.imgID &&
 			d.qualtricsID &&
-			d.qualtricsID.startsWith("IM_")
-			&& d.veracity != null);
+			d.qualtricsID.startsWith("IM_") &&
+			d.veracity != null);
 	}
 
 	static toMapOfImgProperties(images_raw) {
@@ -73,4 +72,3 @@ class ImgProperties {
 		return map;
 	}
 }
-

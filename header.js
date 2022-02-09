@@ -44,7 +44,7 @@ function onSubmitAnswer() {
             EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc);
             return;
 
-        //NOTE: The signal is saved onLoad(), and not onSubmit(). 
+            //NOTE: The signal is saved onLoad(), and not onSubmit(). 
         default:
             return;
     }
@@ -180,8 +180,8 @@ function getImgDB(data) {
     var images = d3.shuffle(images_raw.filter(d =>
         d.imgID &&
         d.qualtricsID &&
-        d.qualtricsID.startsWith("IM_")
-        && d.veracity != null));
+        d.qualtricsID.startsWith("IM_") &&
+        d.veracity != null));
 
     console.log(`Final list contains ${images.length} objects`);
     // Save the list
@@ -228,6 +228,6 @@ function assignImgsToRounds() {
     Object.getOwnPropertyNames(EMDICT).forEach(x => {
         EmbeddedData.saveObj(EMDICT[x], {})
     });
-    
+
     console.log("images assignment complete.");
 }

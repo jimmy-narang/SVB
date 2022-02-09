@@ -1,9 +1,9 @@
 //@ts-check
 
 /**
-* Subset of image-based questions in our surveys that need Javascript actions. 
-* The Enum value MUST BE stored as the attribute 'data-qtype' in the <img> tag. 
-*/
+ * Subset of image-based questions in our surveys that need Javascript actions. 
+ * The Enum value MUST BE stored as the attribute 'data-qtype' in the <img> tag. 
+ */
 var QTYPE = Object.freeze({
 
     // Question types common to both sharers and receivers survey
@@ -79,7 +79,9 @@ class ImgQuestion {
                     this._imgProp = matches[0];
                 else {
                     console.warn('No img properties found for ' + this.QID + ". Defaulting to placeholder");
-                    this._imgProp = { imgID: "placeholder" };
+                    this._imgProp = {
+                        imgID: "placeholder"
+                    };
                 }
             }
         }
@@ -121,7 +123,7 @@ class ImgQuestion {
                 // @ts-ignore
                 return parseInt(jQuery("#" + this.QID + " :checked").val()) == 1;
 
-            // Slider question
+                // Slider question
             case QTYPE.C_PRIOR:
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
@@ -131,7 +133,7 @@ class ImgQuestion {
                 // @ts-ignore
                 return jQuery("#" + this.QID + " input").val();
 
-            // Checkbox question with one option
+                // Checkbox question with one option
             case QTYPE.S_SHARE:
                 // @ts-ignore
                 return jQuery("#" + this.QID + " :checked").length;
@@ -203,7 +205,7 @@ class ImgQuestion {
 
             case QTYPE.R_POST_RSO:
                 scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSEE);
-            //No Break!
+                //No Break!
 
             case QTYPE.R_POST_RSNS:
                 scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSHARE);
@@ -270,7 +272,9 @@ class ImgQuestion {
         this.questionText = new_txt.replace(BLANK.LINKS, links);
 
         //@ts-ignore
-        jQuery('#' + this.QID + " img").css({ 'border': style })
+        jQuery('#' + this.QID + " img").css({
+            'border': style
+        })
     }
 
 
