@@ -13,7 +13,7 @@ function loadImageIntoQ(QID, imgProp) {
 
 // Records every instance of when this entity ('key') was clicked
 function recordTime(key, dictName) {
-    var dict = EmbeddedData.getDict(dictName);
+    var dict = EmbeddedData.getObj(dictName);
     if (!dict[key]) {
         // @ts-ignore
         dict[key] = [jQuery.now()];
@@ -21,7 +21,7 @@ function recordTime(key, dictName) {
         // @ts-ignore
         dict[key].push(jQuery.now());
     }
-    EmbeddedData.saveDict(dictName, dict);
+    EmbeddedData.saveObj(dictName, dict);
 }
 
 // Event handler that saves the user's response in Embedded data.
@@ -33,15 +33,15 @@ function onSubmitAnswer() {
 
         case QTYPE.C_PRIOR:
         case QTYPE.C_PRIOR_BIN:
-            var priors = EmbeddedData.getDict(EMDICT.PRIORS);
+            var priors = EmbeddedData.getObj(EMDICT.PRIORS);
             priors[Q.imgID] = Q.response;
-            EmbeddedData.saveDict(EMDICT.PRIORS, priors);
+            EmbeddedData.saveObj(EMDICT.PRIORS, priors);
             return;
 
         case QTYPE.S_SHARE:
-            var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES);
+            var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
             sc[Q.imgID] = Q.response;
-            EmbeddedData.saveDict(EMDICT.SHARING_CHOICES, sc);
+            EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc);
             return;
 
         //NOTE: The signal is saved onLoad(), and not onSubmit(). 
@@ -68,7 +68,9 @@ function getLoopNumberOld() {
 
 function getLoopNumber() {
     // Loop and Merge questions have IDs of type loopnumber_xxQID 
+    // @ts-ignore
     let cl = Object.keys(Qualtrics.SurveyEngine.QuestionInfo)[0].split("_")[0];
+    // @ts-ignore
     if (jQuery.isNumeric(cl) && !isNaN(parseInt(cl))) {
         return parseInt(cl) - 1;
     } else {
@@ -107,45 +109,45 @@ function loadPage() {
 
         case QTYPE.R_POST_RSB:
         case QTYPE.R_POST_RSBB:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.R_RSB));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSB));
             break;
 
         case QTYPE.R_POST_RSNS:
         case QTYPE.R_POST_RSO:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.R_RSC));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSC));
             break;
 
         case QTYPE.R_POST_SS:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.R_SS));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_SS));
             break;
 
         case QTYPE.R_POST_SW:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.R_SW));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_SW));
             break;
 
         case QTYPE.S_SVB_DIRECT:
         case QTYPE.S_SVB_INDIRECT:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.S_SVB));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.S_SVB));
             break;
 
         case QTYPE.S_EXPLANATION:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.S_EXP));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.S_EXP));
             break;
 
         case QTYPE.S_VIRALITY:
-            loadImgQsOnPage(EmbeddedData.getDict(EMQLIST.S_VIR));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.S_VIR));
             break;
 
         case QTYPE.C_PRIOR:
         case QTYPE.C_PRIOR_BIN:
         case QTYPE.S_SHARE:
-            loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
+            loadImgQsOnPage(EmbeddedData.getObj(EMDICT.IMAGES));
             // @ts-ignore
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
 
         case QTYPE.C_VERACITY:
-            loadImgQsOnPage(EmbeddedData.getDict(EMDICT.IMAGES));
+            loadImgQsOnPage(EmbeddedData.getObj(EMDICT.IMAGES));
             // @ts-ignore
             jQuery("a.veracity_link").click(onClickLink);
             break;
@@ -183,15 +185,15 @@ function getImgDB(data) {
 
     console.log(`Final list contains ${images.length} objects`);
     // Save the list
-    EmbeddedData.saveDict(EMDICT.IMAGES, images);
-    console.log("Images saved:" + JSON.stringify(EmbeddedData.getDict(EMDICT.IMAGES)));
+    EmbeddedData.saveObj(EMDICT.IMAGES, images);
+    console.log("Images saved:" + JSON.stringify(EmbeddedData.getObj(EMDICT.IMAGES)));
 }
 
 // Now create image lists for all other rounds
 function assignImgsToRounds() {
 
     console.log("Creating image lists for other rounds");
-    var images = EmbeddedData.getDict(EMDICT.IMAGES);
+    var images = EmbeddedData.getObj(EMDICT.IMAGES);
     // temporary array that gets chopped up to assign images to each round.
     // @ts-ignore
     let shuffled = d3.shuffle(images);
@@ -217,7 +219,7 @@ function assignImgsToRounds() {
     if (list_map) {
         list_map.forEach((value, key) => {
             let arr = shuffled.splice(0, value);
-            EmbeddedData.saveDict(key, arr);
+            EmbeddedData.saveObj(key, arr);
             console.log("For " + key + ", saved " + arr);
         });
     }

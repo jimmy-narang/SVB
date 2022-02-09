@@ -64,7 +64,7 @@ class ImgQuestion {
             this._imgProp = imgProp;
         } else {
             // Try loading through data-imgid
-            let images = EmbeddedData.getDict(EMDICT.IMAGES);
+            let images = EmbeddedData.getObj(EMDICT.IMAGES);
             console.log("trying to load imgID from attribute data-imgid")
             let img_id = this.getImgAttribute('data-imgid');
             let matches = images.filter(x => x.qualtricsURL == img_id)
@@ -183,19 +183,19 @@ class ImgQuestion {
         console.log(`Generated signal ${signal} of diagnosticity ${signalStrength} for ${this.imgID}`)
 
         // Store the signal
-        var signals = EmbeddedData.getDict(EMDICT.SIGNALS);
+        var signals = EmbeddedData.getObj(EMDICT.SIGNALS);
         signals[this.imgID] = signal;
-        EmbeddedData.saveDict(EMDICT.SIGNALS, signals);
+        EmbeddedData.saveObj(EMDICT.SIGNALS, signals);
 
         // Show the generated signal along with a reminder of the receiver's prior.
-        var prior = EmbeddedData.getDict(EMDICT.PRIORS)[this.imgID];
+        var prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
         this.questionText = this.questionText.replace(BLANK.PRIOR, prior);
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
     onLoadRevealedShareQ() {
 
-        var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
+        var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID];
         var scStr = '';
         var prior = null;
 
@@ -207,7 +207,7 @@ class ImgQuestion {
 
             case QTYPE.R_POST_RSNS:
                 scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSHARE);
-                prior = EmbeddedData.getDict(EMDICT.PRIORS)[this.imgID];
+                prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
                 this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
                 break;
 
@@ -221,7 +221,7 @@ class ImgQuestion {
     onLoadRevealedBeliefQ() {
 
         // @ts-ignore
-        var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
+        var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID];
         // @ts-ignore
         var scStr = '';
         var prior = null;
@@ -229,14 +229,14 @@ class ImgQuestion {
         switch (this.qType) {
 
             case QTYPE.R_POST_RSB:
-                prior = EmbeddedData.getDict(EMDICT.PRIORS)[this.imgID];
-                var sp = EmbeddedData.getDict(EMDICT.SHARER_PRIORS)[this.imgID];
+                prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
+                var sp = EmbeddedData.getObj(EMDICT.SHARER_PRIORS)[this.imgID];
                 this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARER_PRIOR, sp);
                 break;
 
             case QTYPE.R_POST_RSBB:
-                prior = EmbeddedData.getDict(EMDICT.PRIORS)[this.imgID];
-                var sp = EmbeddedData.getDict(EMDICT.SHARER_PRIORS)[this.imgID];
+                prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
+                var sp = EmbeddedData.getObj(EMDICT.SHARER_PRIORS)[this.imgID];
                 this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARER_PRIOR, sp);
                 break;
 
@@ -275,7 +275,7 @@ class ImgQuestion {
 
 
     onLoadExplanationQ() {
-        var sc = EmbeddedData.getDict(EMDICT.SHARING_CHOICES)[this.imgID];
+        var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID];
         var scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSHARE);
         this.questionText = this.questionText.replace(BLANK.SHARING_CHOICE, scStr);
     }

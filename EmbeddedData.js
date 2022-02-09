@@ -72,27 +72,26 @@ class EmbeddedData {
     }
 
     //Whether the object is a valid (if empty) array or dictionary. 
-    static isDict(obj) {
+    static isObj(obj) {
         //return obj && typeof (obj) == "object" && !Array.isArray(obj)
         return obj && typeof (obj) == "object"
     }
 
     // Retrieve a JSON object that was stored as Qualtrics embedded-data
-    static getDict(dictName) {
+    static getObj(objName) {
         // @ts-ignore
-        var embedStr = EmbeddedData.getValue(dictName);
+        var embedStr = EmbeddedData.getValue(objName);
         var obj = JSON.parse(embedStr);
-        if (!EmbeddedData.isDict(obj)) {
-            console.error(`ERROR: embedded data ${embedStr} is not a valid dictionary. Resetting.`);
-            obj = {};
+        if (!EmbeddedData.isObj(obj)) {
+            console.error(`ERROR: embedded data ${embedStr} is not a valid dictionary.`);
         }
         return (obj);
     }
 
     // Save a JSON object as qualtrics embedded data.
-    static saveDict(dictName, dictVal) {
+    static saveObj(objName, objVal) {
         //@ts-ignore
-        Qualtrics.SurveyEngine.setEmbeddedData(dictName, JSON.stringify(dictVal));
+        Qualtrics.SurveyEngine.setEmbeddedData(objName, JSON.stringify(objVal));
     }
 
 }
