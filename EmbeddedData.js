@@ -22,11 +22,11 @@ var EMDICT = Object.freeze({
     PRIORS: "priors", //dict of own priors (sharer or receiver)
     SHARER_PRIORS: "sharer_priors", // dict of sharer's priors (receiver only)
     SIGNALS: "signals", // dict of signals shown to the sharer
-    IMAGES: "images", //Array of images (and properties) to be shown to the user.
     LINK_CLICKS: "link_clicks" // How often was each link clicked.
 });
 
 var EMQLIST = Object.freeze({
+    IMAGES: "images", //Array of images (and properties) to be shown to the user.
     S_EXP: "exp_list", //Ask explanations for these images.
     S_SVB: "svb_list", // elicit credibility threshold (directly or indirectly) for these images
     S_VIR: "virality_list", // ask if these images were seen before

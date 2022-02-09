@@ -19,12 +19,15 @@ if (!is_set) {
         // Fetch and save the list of images (and properties) for this pilot.
         var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
         console.log("Fetching images data from " + linkToImgDB);
-        d3.csv(linkToImgDB).then(getImgDB);
-        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 2);
+
+        d3.csv(linkToImgDB).then(
+            getImgDB).then(function(){
+                // Assign images to different rounds
+                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 2);        
+                assignImgsToRounds();
+                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 3);
+            });
         
-        // Assign images to different rounds
-        assignImgsToRounds();
-        Qualtrics.SurveyEngine.setEmbeddedData("is_set", 3);
     });
 } else {
     console.log('Libraries already loaded. Loading page.');

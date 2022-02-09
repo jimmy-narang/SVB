@@ -64,7 +64,7 @@ class ImgQuestion {
             this._imgProp = imgProp;
         } else {
             // Try loading through data-imgid
-            let images = EmbeddedData.getObj(EMDICT.IMAGES);
+            let images = EmbeddedData.getObj(EMQLIST.IMAGES);
             console.log("trying to load imgID from attribute data-imgid")
             let img_id = this.getImgAttribute('data-imgid');
             let matches = images.filter(x => x.qualtricsURL == img_id)

@@ -12,8 +12,8 @@ function loadImageIntoQ(QID, imgProp) {
 }
 
 // Records every instance of when this entity ('key') was clicked
-function recordTime(key, dictName) {
-    var dict = EmbeddedData.getObj(dictName);
+function recordTime(key) {
+    var dict = EmbeddedData.getObj(EMDICT.LINK_CLICKS);
     if (!dict[key]) {
         // @ts-ignore
         dict[key] = [jQuery.now()];
@@ -21,7 +21,7 @@ function recordTime(key, dictName) {
         // @ts-ignore
         dict[key].push(jQuery.now());
     }
-    EmbeddedData.saveObj(dictName, dict);
+    EmbeddedData.saveObj(EMDICT.LINK_CLICKS, dict);
 }
 
 // Event handler that saves the user's response in Embedded data.
@@ -52,7 +52,7 @@ function onSubmitAnswer() {
 
 function onClickLink() {
     let imgID = this.id.split('~')[1]; //The second element is the image ID
-    recordTime(imgID, EMDICT.LINK_CLICKS);
+    recordTime(imgID);
 }
 
 function getLoopNumberOld() {
@@ -141,13 +141,13 @@ function loadPage() {
         case QTYPE.C_PRIOR:
         case QTYPE.C_PRIOR_BIN:
         case QTYPE.S_SHARE:
-            loadImgQsOnPage(EmbeddedData.getObj(EMDICT.IMAGES));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.IMAGES));
             // @ts-ignore
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
 
         case QTYPE.C_VERACITY:
-            loadImgQsOnPage(EmbeddedData.getObj(EMDICT.IMAGES));
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.IMAGES));
             // @ts-ignore
             jQuery("a.veracity_link").click(onClickLink);
             break;
@@ -185,15 +185,15 @@ function getImgDB(data) {
 
     console.log(`Final list contains ${images.length} objects`);
     // Save the list
-    EmbeddedData.saveObj(EMDICT.IMAGES, images);
-    console.log("Images saved:" + JSON.stringify(EmbeddedData.getObj(EMDICT.IMAGES)));
+    EmbeddedData.saveObj(EMQLIST.IMAGES, images);
+    console.log("Images saved:" + JSON.stringify(EmbeddedData.getObj(EMQLIST.IMAGES)));
 }
 
 // Now create image lists for all other rounds
 function assignImgsToRounds() {
 
     console.log("Creating image lists for other rounds");
-    var images = EmbeddedData.getObj(EMDICT.IMAGES);
+    var images = EmbeddedData.getObj(EMQLIST.IMAGES);
     // temporary array that gets chopped up to assign images to each round.
     // @ts-ignore
     let shuffled = d3.shuffle(images);
@@ -223,5 +223,15 @@ function assignImgsToRounds() {
             console.log("For " + key + ", saved " + arr);
         });
     }
+
+    // Create/initialize a bunch of dicts we will need.
+    Object.getOwnPropertyNames(EMDICT).forEach(element => {
+        EmbeddedData.saveObj(element, {})
+    });
+    
+
+
+
+
     console.log("images assignment complete.");
 }
