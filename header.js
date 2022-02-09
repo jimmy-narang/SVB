@@ -225,13 +225,9 @@ function assignImgsToRounds() {
     }
 
     // Create/initialize a bunch of dicts we will need.
-    Object.getOwnPropertyNames(EMDICT).forEach(element => {
-        EmbeddedData.saveObj(element, {})
+    Object.getOwnPropertyNames(EMDICT).forEach(x => {
+        EmbeddedData.saveObj(EMDICT[x], {})
     });
     
-
-
-
-
     console.log("images assignment complete.");
 }
