@@ -32,8 +32,9 @@ var QTYPE = Object.freeze({
  * with localized strings that describe the sharer's choice/belief etc.
  */
 var BLANK = Object.freeze({
-    PRIOR: "_____",
+    PRIOR: "_____", //own prior
     SHARING_CHOICE: "-----",
+    SIGNAL: "XXXXX", // Because signal and sharer prior will never be shown together. 
     SHARER_PRIOR: "XXXXX",
     LINKS: "--here--",
     VERACITY: "*****"
@@ -191,7 +192,7 @@ class ImgQuestion {
 
         // Show the generated signal along with a reminder of the receiver's prior.
         var prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
-        this.questionText = this.questionText.replace(BLANK.PRIOR, prior);
+        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SIGNAL, signal);
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
