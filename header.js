@@ -226,7 +226,13 @@ function assignImgsToRounds() {
 
     // Create/initialize a bunch of dicts we will need.
     Object.getOwnPropertyNames(EMDICT).forEach(x => {
-        EmbeddedData.saveObj(EMDICT[x], {})
+        let temp = EmbeddedData.getObj(EMDICT[x]);
+        // Ensure we aren't overwriting an existing dict.
+        if(!EmbeddedData.isObj(temp)){
+            EmbeddedData.saveObj(EMDICT[x], {})   
+        } else{
+            console.log(EMDICT[x] + "exists: " + temp);
+        }
     });
 
     console.log("images assignment complete.");
