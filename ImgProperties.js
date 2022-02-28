@@ -57,6 +57,7 @@ class ImgProperties {
 				externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
 				fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
 				veracity: ImgProperties.toBoolean(d.veracity),
+				forQType: d.forQType, //Needs to be one of EMQLIST, or NULL
 				style: d.style
 			}
 		}).filter(d =>

@@ -83,7 +83,7 @@ class EmbeddedData {
         var embedStr = EmbeddedData.getValue(objName);
         var obj = JSON.parse(embedStr);
         if (!EmbeddedData.isObj(obj)) {
-            console.error(`ERROR: embedded data ${embedStr} is not a valid dictionary.`);
+            console.error(`ERROR: embedded data ${objName} is not a valid dictionary.`);
         }
         return (obj);
     }

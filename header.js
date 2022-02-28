@@ -171,7 +171,8 @@ function getImgDB(data) {
             externalURLs: ImgProperties.toArrayOfURLs(d.externalURLs),
             fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
             veracity: ImgProperties.toBoolean(d.veracity),
-            style: d.style
+            style: d.style,
+            forQType: d.forQType
         };
     });
 
@@ -189,48 +190,64 @@ function getImgDB(data) {
     console.log("Images saved:" + JSON.stringify(EmbeddedData.getObj(EMQLIST.IMAGES)));
 }
 
-// Now create image lists for all other rounds
+
+// Assign images to rounds based on values specified in the imageDB's forQType column
+function assignAsSpecified(images, list_map){
+    list_map.forEach((value, key) => {
+        let arr = images.filter(d => d.forQType.includes(key));
+        EmbeddedData.saveObj(key, arr);
+        console.log("For " + key + ", saved (selected) arr of length " + arr.length);
+    });
+}
+
+// Assign images to rounds by shuffling and partitioning
+function assignAsRandom(images, list_map){
+    // temporary array that gets chopped up to assign images to each round.
+    // @ts-ignore
+    let shuffled = d3.shuffle(images);
+    list_map.forEach((value, key) => {
+        let arr = shuffled.splice(0, value);
+        EmbeddedData.saveObj(key, arr);
+        console.log("For " + key + ", saved (random) arr of length " + arr.length);
+    });
+}
+
+// Now create image lists for all other rounds. 
+// For sharers, assignment is random; for receivers, it is specified by the DB.
 function assignImgsToRounds() {
 
     console.log("Creating image lists for other rounds");
     var images = EmbeddedData.getObj(EMQLIST.IMAGES);
-    // temporary array that gets chopped up to assign images to each round.
-    // @ts-ignore
-    let shuffled = d3.shuffle(images);
     var list_map = null;
 
+    //TODO: These counts shouldn't be hard-coded. Change later.
     if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
         // This is a sharer's survey
         list_map = new Map([
-            [EMQLIST.S_EXP, EMMISC.MEDQ],
-            [EMQLIST.S_SVB, EMMISC.MEDQ],
-            [EMQLIST.S_VIR, EMMISC.MEDQ]
+            [EMQLIST.S_EXP, 4],
+            [EMQLIST.S_SVB, 4],
+            [EMQLIST.S_VIR, 4]
         ]);
+        assignAsRandom(images, list_map);
+
     } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
         // This is a receiver's survey
         list_map = new Map([
-            [EMQLIST.R_RSB, EMMISC.MEDQ],
-            [EMQLIST.R_RSC, EMMISC.MEDQ],
-            [EMQLIST.R_SW, EMMISC.MEDQ],
-            [EMQLIST.R_SS, EMMISC.MEDQ],
+            [EMQLIST.R_RSB, 5],
+            [EMQLIST.R_RSC, 5],
+            [EMQLIST.R_SW, 5],
+            [EMQLIST.R_SS, 5],
         ]);
-    }
-
-    if (list_map) {
-        list_map.forEach((value, key) => {
-            let arr = shuffled.splice(0, value);
-            EmbeddedData.saveObj(key, arr);
-            console.log("For " + key + ", saved " + arr);
-        });
+        assignAsSpecified(images, list_map);
     }
 
     // Create/initialize a bunch of dicts we will need.
     Object.getOwnPropertyNames(EMDICT).forEach(x => {
         let temp = EmbeddedData.getObj(EMDICT[x]);
         // Ensure we aren't overwriting an existing dict.
-        if(!EmbeddedData.isObj(temp)){
-            EmbeddedData.saveObj(EMDICT[x], {})   
-        } else{
+        if (!EmbeddedData.isObj(temp)) {
+            EmbeddedData.saveObj(EMDICT[x], {})
+        } else {
             console.log(EMDICT[x] + "exists: " + temp);
         }
     });
