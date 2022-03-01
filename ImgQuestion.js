@@ -95,7 +95,12 @@ class ImgQuestion {
 
     // Get image attribute
     getImgAttribute(attribute) {
-        return this.DOM.getElementsBySelector(" .QuestionText Img")[0].getAttribute(attribute);
+        let selector = this.DOM.getElementsBySelector(" .QuestionText Img");
+        if (selector.length > 0){
+            return selector[0].getAttribute(attribute);
+        } else {
+            return null;
+        }
     }
 
     // Return a binary signal about veracity that's accurate with probability p

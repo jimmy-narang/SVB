@@ -79,7 +79,6 @@ function getLoopNumber() {
     }
 }
 
-
 function loadImgQsOnPage(imgList) {
 
     // Get the list of image questions on this page
@@ -98,6 +97,16 @@ function loadImgQsOnPage(imgList) {
         Q.onLoadQuestion();
     }
 }
+
+function loadVeracityPage(){
+    //@ts-ignore. Get a handle to the only (text/graphic) question on this page
+    let questions = Object.values(Qualtrics.SurveyEngine.QuestionInfo).filter(x => x.QuestionType == "DB");
+    let Q = new ImgQuestion(questions[0].QuestionID);
+    Q.onLoadVeracityQ();
+    // @ts-ignore. Add a click counter to each external link
+    jQuery("a.veracity_link").click(onClickLink);
+}
+
 
 function loadPage() {
 
@@ -147,9 +156,7 @@ function loadPage() {
             break;
 
         case QTYPE.C_VERACITY:
-            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.IMAGES));
-            // @ts-ignore
-            jQuery("a.veracity_link").click(onClickLink);
+            loadVeracityPage();
             break;
 
         default:
