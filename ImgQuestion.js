@@ -250,7 +250,7 @@ class ImgQuestion {
     }
 
     //Reveal if the story was actually true or false, and list references.
-    onLoadVeracityQ() {
+    onLoadVeracityQV1() {
 
         // Get the locale-specific, formatted strings for "here", "true", "false" etc.
         let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
@@ -278,6 +278,26 @@ class ImgQuestion {
         })
     }
 
+    onLoadVeracityQ() {
+
+        // Whether this page corresponds to the list of true stories or false stories
+        let page = ImgProperties.toBoolean(EmbeddedData.getValue(EMMISC.PAGE)); 
+
+        console.log(`Loading all ${page} stories`);
+        let images = EmbeddedData.getObj(EMQLIST.IMAGES).filter(d => d.veracity == page);
+        let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
+        let new_txt = '';
+
+        images.forEach(img => {
+            // Add the image, and then add a set of external links below it.
+            let this_txt = `<img src="${img.qualtricsURL}"><br><br>`
+            let links_txt = img.externalURLs.map((url, i) =>
+            `<a href=${url} rel="noopener noreferrer nofollow" target="_blank" class="veracity_link" id="link~${this.imgID}~${i}">${here_lc}</a>`).join(', ');
+            new_txt = new_txt + this_txt + links_txt + '<br><br>'
+        });
+
+        this.questionText = this.questionText + new_txt;
+    }
 
     onLoadExplanationQ() {
         var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID];

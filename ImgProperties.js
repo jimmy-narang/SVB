@@ -27,9 +27,10 @@ class ImgProperties {
 	static toArrayOfURLs(value) {
 
 		let extURLs = null;
-
-		if (typeof (value) == 'string' && (/\s/).test(value)) {
-			extURLs = value.split(/\s/);
+		
+		// Links are separated by whitespace or commas
+		if (typeof (value) == 'string' && (/[\s,]+/).test(value)) {
+			extURLs = value.split(/[\s,]+/);
 		} else if (typeof (value) == 'string') {
 			extURLs = [value];
 		} else if (Array.isArray(value)) {
@@ -39,8 +40,8 @@ class ImgProperties {
 			return [];
 		}
 
-		// Attach "https://" to the beginning of a link, if it doesn't already exist.
-		extURLs = extURLs.map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
+		// Drop empty values; attach "https://" to the beginning of a link, if it doesn't already exist.
+		extURLs = extURLs.filter(x=>x).map(url => !/^https?:\/\//i.test(url) ? `https://${url}` : url);
 		return extURLs;
 	}
 

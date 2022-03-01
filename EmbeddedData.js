@@ -44,6 +44,7 @@ var EMMISC = Object.freeze({
     STRONG_SIGNAL: "strong_signal", // Diagnosticity of the "stronger" signal
     QUESTION_TYPE: "question_type", // The type of question (set as em.data at the start of each block).
     IS_SET: "is_set", // whether we have decided which images to show in each round.
+    PAGE: "page", // Whether this (veracity) page shows list of true or false stories 
     MAXQ: 20, // length of the priors / sharing_choices round.
     MEDQ: 4, // length of most loops
     MINQ: 2 // length of expensive loops
