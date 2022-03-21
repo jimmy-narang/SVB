@@ -8,7 +8,8 @@ var EMLOCALE = Object.freeze({
     FALSE: "FALSE", // "false"
     SHARE: "SHARE", //User decided to "share" the story
     NOSHARE: "NOSHARE", //User decided to "NOT share" the story
-    NOSEE: "NOSEE", //User "either didn't see or decided to not share" the story
+    NOSEE_OR_NOSHARE: "NOSEE_OR_NOSHARE", //User either didn't see or decided to not share the story,
+    NOSEE: "NOSEE", //User didn't see the story
     HERE: "HERE", // See "here",
     VER_FAKED: "VER_FAKED", //"In fact, it was faked/photoshopped by us."
     VER_TRUE: "VER_TRUE", //"See here for the original news article."
@@ -47,7 +48,8 @@ var EMMISC = Object.freeze({
     PAGE: "page", // Whether this (veracity) page shows list of true or false stories 
     MAXQ: 20, // length of the priors / sharing_choices round.
     MEDQ: 4, // length of most loops
-    MINQ: 2 // length of expensive loops
+    MINQ: 2, // length of expensive loops
+    Q: 0.34 // Probability with which we change the label of a "no share" to "no see"
 });
 
 var EMSURVEYTYPE = Object.freeze({

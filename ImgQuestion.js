@@ -210,19 +210,33 @@ class ImgQuestion {
         switch (this.qType) {
 
             case QTYPE.R_POST_RSO:
-                scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSEE);
+                scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
                 //No Break!
 
-            case QTYPE.R_POST_RSNS:
-                scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSHARE);
-                prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
-                this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
+            case QTYPE.R_POST_RSNS: 
+                if(!sc){            
+                    // For a fraction of the cases , we change "no share" to "no see"
+                    var changeSC = Math.random() < EMMISC.Q
+                    if (changeSC){
+                        console.log(`For ${this.imgID}, changing no-share to no-see`);
+                        var choices = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
+                        choices[this.imgID] = -1; //Flag to indicate that we showed "no see" to the receiver.
+                        EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, choices)
+                        scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
+                    } else {
+                        scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE);
+                    }
+                } else {
+                    scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                }
                 break;
 
             default:
                 throw new TypeError("Revealed-share handler called for invalid question type " + this.qType);
         }
 
+        prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
+        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
@@ -291,17 +305,25 @@ class ImgQuestion {
         console.log(`Loading all ${page} stories`);
         let images = EmbeddedData.getObj(EMQLIST.IMAGES).filter(d => d.veracity == page);
         let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
-        let new_txt = '';
+        let lead_str = EmbeddedData.getValue(EMLOCALE.VER_TRUE);
+
+        let q_txt = '';
 
         images.forEach(img => {
-            // Add the image, and then add a set of external links below it.
-            let this_txt = `<img src="${img.qualtricsURL}"><br><br>`
-            let links_txt = img.externalURLs.map((url, i) =>
+            
+            // Get the leading string
+            if(!img.veracity){
+                lead_str = img.fakedByUs ? EmbeddedData.getValue(EMLOCALE.VER_FAKED) : EmbeddedData.getValue(EMLOCALE.VER_FALSE);
+            }
+            // Convert the list of external URLs into a comma separated string
+            let ext_urls_str = img.externalURLs.map((url, i) =>
             `<a href=${url} rel="noopener noreferrer nofollow" target="_blank" class="veracity_link" id="link~${this.imgID}~${i}">${here_lc}</a>`).join(', ');
-            new_txt = new_txt + this_txt + links_txt + '<br><br>'
+            
+            // Add the image, the lead string, and the set of external URLs to the question's body.
+            q_txt = q_txt +  `<img src="${img.qualtricsURL}"><br><br>${lead_str}${ext_urls_str}<br><br><hr>`
         });
 
-        this.questionText = this.questionText + new_txt;
+        this.questionText = this.questionText + q_txt;
     }
 
     onLoadExplanationQ() {
