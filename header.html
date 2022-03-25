@@ -1,6 +1,6 @@
 <script>
     is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
-    if (!is_set) {
+    if (is_set != 1) {
         jQuery.when(
             jQuery.getScript("https://d3js.org/d3.v7.min.js"),
             jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
@@ -12,7 +12,6 @@
             })
         ).done(function () {
             console.log("Libraries loaded.");
-            Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
             var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
             console.log("Fetching images data from " + linkToImgDB);
 
@@ -21,6 +20,7 @@
                 getImgDB).then(function () {
                 // Assign images to different rounds
                 assignImgsToRounds();
+                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
             });
         });
     } else {

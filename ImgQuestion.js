@@ -196,8 +196,10 @@ class ImgQuestion {
         EmbeddedData.saveObj(EMDICT.SIGNALS, signals);
 
         // Show the generated signal along with a reminder of the receiver's prior.
+        // Find the localized string for TRUE or FALSE 
+        var signal_str = (signal) ? EmbeddedData.getValue("TRUE") : EmbeddedData.getValue("FALSE")
         var prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
-        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SIGNAL, signal);
+        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SIGNAL, signal_str);
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
