@@ -240,8 +240,8 @@ function assignImgsToRounds() {
     } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
         // This is a receiver's survey
         list_map = new Map([
-            [EMQLIST.R_RSB, 5],
-            [EMQLIST.R_RSC, 5],
+            [EMQLIST.R_RSB, 5], // This is RSB or RSBB
+            [EMQLIST.R_RSC, 5], //This is RSO or RSNS
             [EMQLIST.R_SW, 5],
             [EMQLIST.R_SS, 5],
         ]);

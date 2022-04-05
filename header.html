@@ -1,6 +1,7 @@
 <script>
     is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
-    if (is_set != 1) {
+    no_libs =  typeof d3 == 'undefined' || typeof EmbeddedData == 'undefined' || typeof ImgProperties == 'undefined' || typeof ImgQuestion == 'undefined'
+    if (is_set != 1 || no_libs) {
         jQuery.when(
             jQuery.getScript("https://d3js.org/d3.v7.min.js"),
             jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
