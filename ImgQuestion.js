@@ -23,6 +23,7 @@ var QTYPE = Object.freeze({
     R_POST_RSBB: 'R_POST_RSBB', //Receiver's posterior after {R}evealing {S}harer's {B}elief in {B}inary form.
     R_POST_RSO: 'R_POST_RSO', //Receiver's posterior after {R}evealing {S}harer's decision ONLY if they {S}hared the story.
     R_POST_RSNS: 'R_POST_RSNS', //Receiver's posterior after {R}evealing  {S}harer's decision either way: {S}hare/{N}ot share.
+    R_POST_RSOP: 'R_POST_RSOP', //{R}eveal {S}hares {O}nly, but only elicit Receiver's posterior directly. 
     R_POST_SW: 'R_POST_SW', //Receiver's posterior after seeing a (weak) signal 
     R_POST_SS: 'R_POST_SS' //Receiver's posterior after seeing a (strong) signal
 });
@@ -133,6 +134,7 @@ class ImgQuestion {
             case QTYPE.C_PRIOR:
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
+            case QTYPE.R_POST_RSOP:
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
@@ -210,6 +212,11 @@ class ImgQuestion {
         var prior = null;
 
         switch (this.qType) {
+            case QTYPE.R_POST_RSOP:
+                if(sc){
+                    scStr = EmbeddedData.getValue(EMLOCALE.SHARED_BY); 
+                }
+                break;
 
             case QTYPE.R_POST_RSO:
                 scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
@@ -354,6 +361,7 @@ class ImgQuestion {
 
             case QTYPE.R_POST_RSNS:
             case QTYPE.R_POST_RSO:
+            case QTYPE.R_POST_RSOP:
                 this.onLoadRevealedShareQ();
                 return;
 

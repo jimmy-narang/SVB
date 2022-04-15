@@ -123,6 +123,7 @@ function loadPage() {
 
         case QTYPE.R_POST_RSNS:
         case QTYPE.R_POST_RSO:
+        case QTYPE.R_POST_RSOP:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSC));
             break;
 
@@ -244,6 +245,14 @@ function assignImgsToRounds() {
             [EMQLIST.R_RSC, 5], //This is RSO or RSNS
             [EMQLIST.R_SW, 5],
             [EMQLIST.R_SS, 5],
+        ]);
+        assignAsSpecified(images, list_map);
+    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED){
+        // This is a receiver's survey
+        list_map = new Map([
+            [EMQLIST.R_RSB, 5], // This is RSB or RSBB
+            [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
+            [EMQLIST.R_SW, 5]
         ]);
         assignAsSpecified(images, list_map);
     }

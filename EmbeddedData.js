@@ -7,6 +7,7 @@ var EMLOCALE = Object.freeze({
     TRUE: "TRUE", // "true"
     FALSE: "FALSE", // "false"
     SHARE: "SHARE", //User decided to "share" the story
+    SHARED_BY: "SHARED_BY",
     NOSHARE: "NOSHARE", //User decided to "NOT share" the story
     NOSEE_OR_NOSHARE: "NOSEE_OR_NOSHARE", //User either didn't see or decided to not share the story,
     NOSEE: "NOSEE", //User didn't see the story
@@ -55,6 +56,7 @@ var EMMISC = Object.freeze({
 var EMSURVEYTYPE = Object.freeze({
     SHARER: "sharer",
     RECEIVER: "receiver",
+    RECEIVER_SIMPLIFIED: "receiver_simplified",
     FOLLOW_UP: "follow_up"
 });
 
