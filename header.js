@@ -252,7 +252,7 @@ function assignImgsToRounds() {
         list_map = new Map([
             [EMQLIST.R_RSB, 5], // This is RSB or RSBB
             [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
-            [EMQLIST.R_SW, 5]
+            [EMQLIST.R_SS, 5]
         ]);
         assignAsSpecified(images, list_map);
     }
