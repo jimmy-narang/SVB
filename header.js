@@ -223,7 +223,7 @@ function assignGreedySharing(images, list_map){
     // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
     let remaining_imgs = d3.shuffle(shared.concat(not_shared))
     list_map.delete(EMQLIST.R_RSC)
-    assignAsSpecified(remaining_imgs, remaining_imgs);
+    assignAsSpecified(remaining_imgs, list_map);
 }
 
 // Assign images to rounds based on values specified in the imageDB's forQType column
