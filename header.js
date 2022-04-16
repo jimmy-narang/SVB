@@ -281,7 +281,8 @@ function assignImgsToRounds() {
             [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
             [EMQLIST.R_SS, 5]
         ]);
-        assignGreedySharing(images, list_map);
+        assignAsRandom(images, list_map);
+        //assignGreedySharing(images, list_map);
     }
 
     // Create/initialize a bunch of dicts we will need.
