@@ -199,6 +199,33 @@ function getImgDB(data) {
 }
 
 
+// Ensure half the shared stories are in the revealed-share round 
+function assignGreedySharing(images, list_map){
+    if(!list_map.has(EMQLIST.R_RSC)){
+        console.log("No sharing round. Using a regular assign-as-specified");
+        assignAsSpecified(images, list_map);
+        return;
+    }
+    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
+
+    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
+    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
+
+    // Allow at most half the stories in the revealed-share round to be shared stories
+    // AND show at most half the shared stories to be shown in the revealed-share round
+    //Pad the rest with non-shared stories
+    let n = list_map.get(EMQLIST.R_RSC);
+    let min = Math.min(Math.ceil(n/2), Math.ceil(shared.length/2))
+    let arr_rsc = shared.splice(0, min)
+    arr_rsc = arr_rsc.concat(not_shared.splice(0, n - min))
+    EmbeddedData.saveObj(EMQLIST.R_RSC, arr_rsc);
+
+    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
+    let remaining_imgs = shared.concat(not_shared)
+    list_map.delete(EMQLIST.R_RSC)
+    assignAsSpecified(remaining_imgs, remaining_imgs);
+}
+
 // Assign images to rounds based on values specified in the imageDB's forQType column
 function assignAsSpecified(images, list_map){
     list_map.forEach((value, key) => {
