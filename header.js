@@ -217,11 +217,11 @@ function assignGreedySharing(images, list_map){
     let n = list_map.get(EMQLIST.R_RSC);
     let min = Math.min(Math.ceil(n/2), Math.ceil(shared.length/2))
     let arr_rsc = shared.splice(0, min)
-    arr_rsc = arr_rsc.concat(not_shared.splice(0, n - min))
+    arr_rsc = d3.shuffle(arr_rsc.concat(not_shared.splice(0, n - min)))
     EmbeddedData.saveObj(EMQLIST.R_RSC, arr_rsc);
 
     // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
-    let remaining_imgs = shared.concat(not_shared)
+    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
     list_map.delete(EMQLIST.R_RSC)
     assignAsSpecified(remaining_imgs, remaining_imgs);
 }
@@ -281,7 +281,7 @@ function assignImgsToRounds() {
             [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
             [EMQLIST.R_SS, 5]
         ]);
-        assignAsSpecified(images, list_map);
+        assignGreedySharing(images, list_map);
     }
 
     // Create/initialize a bunch of dicts we will need.
