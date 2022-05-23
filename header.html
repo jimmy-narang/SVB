@@ -1,31 +1,71 @@
 <script>
-    is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
-    no_libs =  typeof d3 == 'undefined' || typeof EmbeddedData == 'undefined' || typeof ImgProperties == 'undefined' || typeof ImgQuestion == 'undefined'
-    if (is_set != 1 || no_libs) {
-        jQuery.when(
-            jQuery.getScript("https://d3js.org/d3.v7.min.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
-            jQuery.Deferred(function (deferred) {
-                jQuery(deferred.resolve);
-            })
-        ).done(function () {
-            console.log("Libraries loaded.");
-            var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
-            console.log("Fetching images data from " + linkToImgDB);
+is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
+no_libs =  typeof d3 == 'undefined' || 
+            typeof EmbeddedData == 'undefined' || 
+            typeof ImgProperties == 'undefined' || 
+            typeof ImgQuestion == 'undefined'
+if (is_set != 1 || no_libs) {
+    jQuery.when(
+        jQuery.getScript("https://d3js.org/d3.v7.min.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
+        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
+        jQuery.Deferred(function (deferred) {
+            jQuery(deferred.resolve);
+        })
+    ).done(function () {
+        console.log("Libraries loaded.");
+        var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
+        console.log("Fetching images data from " + linkToImgDB);
+        
+        d3.csv(linkToImgDB).then(
+            // Fetch images from google sheets
+            getImgDB).then(function () {
+            // Assign images to different rounds
+            console.log("Creating image lists for other rounds");
+            var images = EmbeddedData.getObj(EMQLIST.IMAGES);
+            var list_map = null;
 
-            d3.csv(linkToImgDB).then(
-                // Fetch images from google sheets
-                getImgDB).then(function () {
-                // Assign images to different rounds
-                assignImgsToRounds();
-                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
-            });
+            //TODO: These counts shouldn't be hard-coded. Change later.
+            if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
+                // This is a sharer's survey
+                list_map = new Map([
+                    [EMQLIST.S_EXP, 4],
+                    [EMQLIST.S_SVB, 4],
+                    [EMQLIST.S_VIR, 4]
+                ]);
+
+                //assignAsRandom(images, list_map);
+                assignSharers(images, list_map)
+
+            } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
+                // This is a receiver's survey
+                list_map = new Map([
+                    [EMQLIST.R_RSB, 6], // Used for RSB or RSBB
+                    [EMQLIST.R_RSC, 6], // Used for RSO or RSNS
+                    [EMQLIST.R_SW, 0], // Deprecated
+                    [EMQLIST.R_SS, 6] // Used for signals (strong)
+                ]);
+                // When using assignAsSpecified, counts are ignored.
+                assignReceivers(images, list_map);
+            } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED){
+                // This is a receiver's survey
+                list_map = new Map([
+                    [EMQLIST.R_RSB, 5], // This is RSB or RSBB
+                    [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
+                    [EMQLIST.R_SS, 5]
+                ]);
+                //assignAsRandom(images, list_map);
+                assignReceivers(images, list_map); 
+            }
+            //assignImgsToRounds();
+            Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
         });
-    } else {
-        console.log('Libraries already loaded. Loading page.');
-        loadPage();
-    }
+    });
+} else {
+    console.log('Libraries already loaded. Loading page.');
+    loadPage();
+}
+
 </script>

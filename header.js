@@ -98,7 +98,7 @@ function loadImgQsOnPage(imgList) {
     }
 }
 
-function loadVeracityPage(){
+function loadVeracityPage() {
     //@ts-ignore. Get a handle to the only (text/graphic) question on this page
     let questions = Object.values(Qualtrics.SurveyEngine.QuestionInfo).filter(x => x.QuestionType == "DB");
     let Q = new ImgQuestion(questions[0].QuestionID);
@@ -200,8 +200,8 @@ function getImgDB(data) {
 
 
 // Ensure half the shared stories are in the revealed-share round 
-function assignGreedySharing(images, list_map){
-    if(!list_map.has(EMQLIST.R_RSC)){
+function assignGreedySharing(images, list_map) {
+    if (!list_map.has(EMQLIST.R_RSC)) {
         console.log("No sharing round. Using a regular assign-as-specified");
         assignAsSpecified(images, list_map);
         return;
@@ -215,7 +215,7 @@ function assignGreedySharing(images, list_map){
     // AND show at most half the shared stories to be shown in the revealed-share round
     //Pad the rest with non-shared stories
     let n = list_map.get(EMQLIST.R_RSC);
-    let min = Math.min(Math.ceil(n/2), Math.ceil(shared.length/2))
+    let min = Math.min(Math.ceil(n / 2), Math.ceil(shared.length / 2))
     let arr_rsc = shared.splice(0, min)
     arr_rsc = d3.shuffle(arr_rsc.concat(not_shared.splice(0, n - min)))
     EmbeddedData.saveObj(EMQLIST.R_RSC, arr_rsc);
@@ -227,7 +227,7 @@ function assignGreedySharing(images, list_map){
 }
 
 // Assign images to rounds based on values specified in the imageDB's forQType column
-function assignAsSpecified(images, list_map){
+function assignAsSpecified(images, list_map) {
     list_map.forEach((value, key) => {
         let arr = images.filter(d => d.forQType.includes(key));
         EmbeddedData.saveObj(key, arr);
@@ -236,7 +236,7 @@ function assignAsSpecified(images, list_map){
 }
 
 // Assign images to rounds by shuffling and partitioning
-function assignAsRandom(images, list_map){
+function assignAsRandom(images, list_map) {
     // temporary array that gets chopped up to assign images to each round.
     // @ts-ignore
     let shuffled = d3.shuffle(images);
@@ -247,6 +247,78 @@ function assignAsRandom(images, list_map){
     });
 }
 
+// Assign stories for Receiver rounds 
+// (other than priors & sharing choices: all images are shown for those) 
+function assignReceivers(images, list_map) {
+
+    // Which images are shown in which round depends on the *sharer's choices*,
+    // not the receiver's; ironically enough.
+    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
+
+    // partition stories into shared and not shared
+    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
+    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
+
+    // Make sure about half stories in "revealed sharing" are stories 
+    // actually shared by the sharer. (assuming sharer has shared enough).
+    let n = list_map.get(EMQLIST.R_RSC);
+    let arr = [];
+    if (shared.length <= Math.ceil(n / 2)) {
+        arr = shared.concat(not_shared.splice(0, n - shared.length))
+    } else {
+        arr = shared.splice(0, Math.ceil(n / 2)).splice(0, Math.floor(n / 2))
+    }
+    // Shuffle shared & not shared before assigning.
+    arr = d3.shuffle(arr)
+    EmbeddedData.saveObj(EMQLIST.R_RSC, arr);
+
+    // Remove from list_map, since images for this round have now been assigned.
+    list_map.delete(EMQLIST.R_RSC);
+
+    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
+    // For virality: just reuse the virality list.
+    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
+    assignAsSpecified(remaining_imgs, list_map);
+}
+
+// Assign stories for sharer rounds 
+// (other than priors & sharing choices: all images are shown for those) 
+function assignSharers(images, list_map) {
+
+    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
+
+    // partition stories into shared and not shared
+    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
+    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
+
+    // Ensure S_EXP and S_VIR have a mix of stories that are shared/not shared
+
+    let n = list_map.get(EMQLIST.S_EXP);
+    let arr = [];
+    if (shared.length <= Math.ceil(n / 2)) {
+        arr = shared.concat(not_shared.splice(0, n - shared.length))
+    } else {
+        arr = shared.splice(0, Math.ceil(n / 2)).splice(0, Math.floor(n / 2))
+    }
+    // Shuffle shared & not shared before assigning.
+    arr = d3.shuffle(arr)
+    EmbeddedData.saveObj(EMQLIST.S_EXP, arr);
+
+    // Use the same images for S_VIR as S_EXP
+    EmbeddedData.saveObj(EMQLIST.S_VIR, arr);
+
+    // Remove from list_map, since images for these rounds have now been assigned.
+    list_map.delete(EMQLIST.S_EXP);
+    list_map.delete(EMQLIST.S_VIR);
+
+    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
+    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
+    assignAsSpecified(remaining_imgs, list_map);
+}
+
+
+
+// PRESERVE FOR BACKWARD COMPATIBILITY
 // Now create image lists for all other rounds. 
 // For sharers, assignment is random; for receivers, it is specified by the DB.
 function assignImgsToRounds() {
@@ -274,7 +346,7 @@ function assignImgsToRounds() {
             [EMQLIST.R_SS, 5],
         ]);
         assignAsSpecified(images, list_map);
-    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED){
+    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED) {
         // This is a receiver's survey
         list_map = new Map([
             [EMQLIST.R_RSB, 5], // This is RSB or RSBB
