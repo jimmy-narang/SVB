@@ -247,77 +247,6 @@ function assignAsRandom(images, list_map) {
     });
 }
 
-// Assign stories for Receiver rounds 
-// (other than priors & sharing choices: all images are shown for those) 
-function assignReceivers(images, list_map) {
-
-    // Which images are shown in which round depends on the *sharer's choices*,
-    // not the receiver's; ironically enough.
-    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
-
-    // partition stories into shared and not shared
-    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
-    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
-
-    // Make sure about half stories in "revealed sharing" are stories 
-    // actually shared by the sharer. (assuming sharer has shared enough).
-    let n = list_map.get(EMQLIST.R_RSC);
-    let arr = [];
-    if (shared.length <= Math.ceil(n / 2)) {
-        arr = shared.concat(not_shared.splice(0, n - shared.length))
-    } else {
-        arr = shared.splice(0, Math.ceil(n / 2)).splice(0, Math.floor(n / 2))
-    }
-    // Shuffle shared & not shared before assigning.
-    arr = d3.shuffle(arr)
-    EmbeddedData.saveObj(EMQLIST.R_RSC, arr);
-
-    // Remove from list_map, since images for this round have now been assigned.
-    list_map.delete(EMQLIST.R_RSC);
-
-    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
-    // For virality: just reuse the virality list.
-    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
-    assignAsSpecified(remaining_imgs, list_map);
-}
-
-// Assign stories for sharer rounds 
-// (other than priors & sharing choices: all images are shown for those) 
-function assignSharers(images, list_map) {
-
-    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
-
-    // partition stories into shared and not shared
-    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
-    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
-
-    // Ensure S_EXP and S_VIR have a mix of stories that are shared/not shared
-
-    let n = list_map.get(EMQLIST.S_EXP);
-    let arr = [];
-    if (shared.length <= Math.ceil(n / 2)) {
-        arr = shared.concat(not_shared.splice(0, n - shared.length))
-    } else {
-        arr = shared.splice(0, Math.ceil(n / 2)).splice(0, Math.floor(n / 2))
-    }
-    // Shuffle shared & not shared before assigning.
-    arr = d3.shuffle(arr)
-    EmbeddedData.saveObj(EMQLIST.S_EXP, arr);
-
-    // Use the same images for S_VIR as S_EXP
-    EmbeddedData.saveObj(EMQLIST.S_VIR, arr);
-
-    // Remove from list_map, since images for these rounds have now been assigned.
-    list_map.delete(EMQLIST.S_EXP);
-    list_map.delete(EMQLIST.S_VIR);
-
-    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
-    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
-    assignAsSpecified(remaining_imgs, list_map);
-}
-
-
-
 // PRESERVE FOR BACKWARD COMPATIBILITY
 // Now create image lists for all other rounds. 
 // For sharers, assignment is random; for receivers, it is specified by the DB.
@@ -356,17 +285,7 @@ function assignImgsToRounds() {
         assignAsRandom(images, list_map);
         //assignGreedySharing(images, list_map);
     }
-
-    // Create/initialize a bunch of dicts we will need.
-    Object.getOwnPropertyNames(EMDICT).forEach(x => {
-        let temp = EmbeddedData.getObj(EMDICT[x]);
-        // Ensure we aren't overwriting an existing dict.
-        if (!EmbeddedData.isObj(temp)) {
-            EmbeddedData.saveObj(EMDICT[x], {})
-        } else {
-            console.log(EMDICT[x] + "exists: " + temp);
-        }
-    });
-
+    
+    initializeED();
     console.log("images assignment complete.");
 }

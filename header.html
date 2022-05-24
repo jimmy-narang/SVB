@@ -1,71 +1,171 @@
 <script>
-is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
-no_libs =  typeof d3 == 'undefined' || 
-            typeof EmbeddedData == 'undefined' || 
-            typeof ImgProperties == 'undefined' || 
-            typeof ImgQuestion == 'undefined'
-if (is_set != 1 || no_libs) {
-    jQuery.when(
-        jQuery.getScript("https://d3js.org/d3.v7.min.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
-        jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
-        jQuery.Deferred(function (deferred) {
-            jQuery(deferred.resolve);
-        })
-    ).done(function () {
-        console.log("Libraries loaded.");
-        var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
-        console.log("Fetching images data from " + linkToImgDB);
-        
-        d3.csv(linkToImgDB).then(
-            // Fetch images from google sheets
-            getImgDB).then(function () {
-            // Assign images to different rounds
-            console.log("Creating image lists for other rounds");
-            var images = EmbeddedData.getObj(EMQLIST.IMAGES);
-            var list_map = null;
+    // WARNING: It is *critical* that there is NO flag/embedded data named "is_set"
+    // defined manually in the survey flow. Doing so will cause is_set to persist
+    // even if a participant closes and reopens the tab, causing images to stop 
+    // loading.
 
-            //TODO: These counts shouldn't be hard-coded. Change later.
-            if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
-                // This is a sharer's survey
-                list_map = new Map([
-                    [EMQLIST.S_EXP, 4],
-                    [EMQLIST.S_SVB, 4],
-                    [EMQLIST.S_VIR, 4]
-                ]);
+    is_set = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("is_set"));
 
-                //assignAsRandom(images, list_map);
-                assignSharers(images, list_map)
+    no_libs = typeof d3 == 'undefined' ||
+        typeof EmbeddedData == 'undefined' ||
+        typeof ImgProperties == 'undefined' ||
+        typeof ImgQuestion == 'undefined'
 
-            } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
-                // This is a receiver's survey
-                list_map = new Map([
-                    [EMQLIST.R_RSB, 6], // Used for RSB or RSBB
-                    [EMQLIST.R_RSC, 6], // Used for RSO or RSNS
-                    [EMQLIST.R_SW, 0], // Deprecated
-                    [EMQLIST.R_SS, 6] // Used for signals (strong)
-                ]);
-                // When using assignAsSpecified, counts are ignored.
-                assignReceivers(images, list_map);
-            } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED){
-                // This is a receiver's survey
-                list_map = new Map([
-                    [EMQLIST.R_RSB, 5], // This is RSB or RSBB
-                    [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
-                    [EMQLIST.R_SS, 5]
-                ]);
-                //assignAsRandom(images, list_map);
-                assignReceivers(images, list_map); 
-            }
-            //assignImgsToRounds();
-            Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
+    if (no_libs || !is_set) {
+        jQuery.when(
+            jQuery.getScript("https://d3js.org/d3.v7.min.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/header.js"),
+            jQuery.Deferred(function (deferred) {
+                jQuery(deferred.resolve);
+            })
+        ).done(function () {
+            console.log("Libraries loaded.");
+            var linkToImgDB = EmbeddedData.getValue(EMMISC.IMG_DB_URL);
+            console.log("Fetching images data from " + linkToImgDB);
+            d3.csv(linkToImgDB).then(
+                // Fetch images from google sheets
+                getImgDB).then(function () {
+                // initialize Embedded data dictionaries, arrays etc.
+                initializeED();
+                Qualtrics.SurveyEngine.setEmbeddedData("is_set", 1);
+            });
         });
-    });
-} else {
-    console.log('Libraries already loaded. Loading page.');
-    loadPage();
-}
+    } else {
 
+        //TODO: add this to EMMISC
+        sc_complete = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("sc_complete"));
+        if (sc_complete == 1) {
+            // Image selection for some rounds has to wait until sharing-choices
+            // have been elicited.
+            assignImgsToDynamicRounds();
+            Qualtrics.SurveyEngine.setEmbeddedData("sc_complete", 2);
+        }
+        console.log('Libraries already loaded. Loading page.');
+        loadPage();
+    }
+
+
+    // Assign images for rounds other than priors & sharing choices
+    function assignImgsToDynamicRounds() {
+
+        console.log("Creating image lists for other rounds");
+        var images = EmbeddedData.getObj(EMQLIST.IMAGES);
+        var list_map = null;
+
+        //TODO: These counts shouldn't be hard-coded. Change later.
+        if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
+            // This is a sharer's survey
+            list_map = new Map([
+                [EMQLIST.S_EXP, 4],
+                [EMQLIST.S_SVB, 4],
+                [EMQLIST.S_VIR, 4]
+            ]);
+
+            //assignAsRandom(images, list_map);
+            assignSharers(images, list_map)
+
+        } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
+            // This is a receiver's survey
+            list_map = new Map([
+                [EMQLIST.R_RSB, 6], // Used for RSB or RSBB
+                [EMQLIST.R_RSC, 6], // Used for RSO or RSNS
+                [EMQLIST.S_VIR, 4], // Same set as sharer
+                [EMQLIST.R_SS, 6] // Used for signals (strong)
+            ]);
+            assignReceivers(images, list_map);
+        } else {
+            console.error(EmbeddedData.getSurveyType() + ": Unknown surey type.")
+        }
+    }
+
+    // create a balanced set of shared/not-shared images for a round of length n
+    function assignBySharingChoice(images, n){
+
+        let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
+        if (!sc || sc.length == 0) {
+            console.warn("Sharing choices haven't been made yet. Cannot assign.")
+            return {'arr':null, 'remainder':null};
+        }
+        
+        // partition stories into shared and not shared; shuffle order.
+        let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
+        let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
+        console.log("total # shared: " + shared.length)
+        let m =  shared.length <= Math.ceil(n / 2) ? shared.length : Math.ceil(n / 2)
+        let arr = d3.shuffle(shared.splice(0, m).concat(not_shared.splice(0, n - m)))
+        return {'arr': arr, 'remainder': shared.concat(not_shared)};
+
+    }
+
+    // Assign stories for sharer rounds _after_ priors & sharing choices 
+    // have been elicited.
+    function assignSharers(images, list_map) {
+
+        let arr_s_exp = EmbeddedData.getObj(EMQLIST.S_EXP)
+        if (arr_s_exp && arr_s_exp.length > 0) {
+            console.info("Assignments appear to have already been made. Returning.")
+            return;
+        }
+
+        let {arr, remainder} = assignBySharingChoice(sc, list_map.get(EMQLIST.S_EXP))
+        console.log("saving the following for s_exp & s_vir: " + arr.map(x => x.imgID))
+        EmbeddedData.saveObj(EMQLIST.S_EXP, arr);
+
+        // Use the same images for S_VIR as S_EXP
+        EmbeddedData.saveObj(EMQLIST.S_VIR, arr);
+
+        // Remove these rounds from list_map, since images have now been assigned.
+        list_map.delete(EMQLIST.S_EXP);
+        list_map.delete(EMQLIST.S_VIR);
+
+        // Allocate image lists for other rounds as usual, using leftover shared and unshared imgs.
+        // Because we used "splice", shared and not_shared contain remainders.
+        assignAsSpecified(remainder, list_map);
+    }
+
+    // Assign stories for receiver rounds
+    function assignReceivers(images, list_map) {
+
+        // Assign stories for the revealed sharing round
+        let arr_rsc = EmbeddedData.getObj(EMQLIST.R_RSC) 
+        if (arr_rsc && arr_rsc.length > 0) {
+            console.info("Assignments appear to have already been made. Returning.")
+            return;
+        }
+
+        let {arr, remainder} = assignBySharingChoice(sc, list_map.get(EMQLIST.R_RSC))
+        console.log("saving the following for r_rsc: " + arr.map(x => x.imgID))
+        EmbeddedData.saveObj(EMQLIST.R_RSC, arr);
+        list_map.delete(EMQLIST.R_RSC);
+
+        // For the virality round, reuse the sharer's list
+        let arr_vir = EmbeddedData.getObj(EMQLIST.S_VIR) 
+        if (arr_vir && arr_vir.length > 0) {
+            console.info("Assignments appear to have already been made. Returning.")
+            return;
+        }
+        EmbeddedData.saveObj(EMQLIST.S_VIR, arr_vir);
+        list_map.delete(EMQLIST.S_VIR)
+
+        // Distribute the remaining images among the other rounds.
+        assignAsSpecified(remainder, list_map);
+    }
+
+
+    // Create empty objects/dictionaries 
+    function initializeED() {
+        // Create/initialize a bunch of dicts we will need.
+        Object.getOwnPropertyNames(EMDICT).forEach(x => {
+            let temp = EmbeddedData.getObj(EMDICT[x]);
+            // Ensure we aren't overwriting an existing dict.
+            if (!EmbeddedData.isObj(temp)) {
+                EmbeddedData.saveObj(EMDICT[x], {})
+            } else {
+                console.log(EMDICT[x] + "exists: " + temp);
+            }
+        });
+    }
 </script>
