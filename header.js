@@ -199,39 +199,12 @@ function getImgDB(data) {
 }
 
 
-// Ensure half the shared stories are in the revealed-share round 
-function assignGreedySharing(images, list_map) {
-    if (!list_map.has(EMQLIST.R_RSC)) {
-        console.log("No sharing round. Using a regular assign-as-specified");
-        assignAsSpecified(images, list_map);
-        return;
-    }
-    let sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
-
-    let shared = d3.shuffle(images.filter(d => sc[d.imgID] == 1));
-    let not_shared = d3.shuffle(images.filter(d => sc[d.imgID] != 1));
-
-    // Allow at most half the stories in the revealed-share round to be shared stories
-    // AND show at most half the shared stories to be shown in the revealed-share round
-    //Pad the rest with non-shared stories
-    let n = list_map.get(EMQLIST.R_RSC);
-    let min = Math.min(Math.ceil(n / 2), Math.ceil(shared.length / 2))
-    let arr_rsc = shared.splice(0, min)
-    arr_rsc = d3.shuffle(arr_rsc.concat(not_shared.splice(0, n - min)))
-    EmbeddedData.saveObj(EMQLIST.R_RSC, arr_rsc);
-
-    // Allocate other lists as usual, using the remainder of the shared and unshared arrays.
-    let remaining_imgs = d3.shuffle(shared.concat(not_shared))
-    list_map.delete(EMQLIST.R_RSC)
-    assignAsSpecified(remaining_imgs, list_map);
-}
-
 // Assign images to rounds based on values specified in the imageDB's forQType column
 function assignAsSpecified(images, list_map) {
-    list_map.forEach((value, key) => {
-        let arr = images.filter(d => d.forQType.includes(key));
-        EmbeddedData.saveObj(key, arr);
-        console.log("For " + key + ", saved (selected) arr of length " + arr.length);
+    list_map.forEach((round_length, round_name) => {
+        let arr = images.filter(d => d.forQType.includes(round_name));
+        EmbeddedData.saveObj(round_name, arr);
+        console.log("For " + round_name + ", saved (selected) arr of length " + arr.length);
     });
 }
 
@@ -240,10 +213,10 @@ function assignAsRandom(images, list_map) {
     // temporary array that gets chopped up to assign images to each round.
     // @ts-ignore
     let shuffled = d3.shuffle(images);
-    list_map.forEach((value, key) => {
-        let arr = shuffled.splice(0, value);
-        EmbeddedData.saveObj(key, arr);
-        console.log("For " + key + ", saved (random) arr of length " + arr.length);
+    list_map.forEach((round_length, round_name) => {
+        let arr = shuffled.splice(0, round_length);
+        EmbeddedData.saveObj(round_name, arr);
+        console.log("For " + round_name + ", saved (random) arr of length " + arr.length);
     });
 }
 

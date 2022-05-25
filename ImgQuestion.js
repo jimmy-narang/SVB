@@ -207,36 +207,32 @@ class ImgQuestion {
     //Applicable to Receivers, except in the case of sharer's explanations.
     onLoadRevealedShareQ() {
 
-        var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID];
+        var sc = parseInt(EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID]);
         var scStr = '';
         var prior = null;
 
         switch (this.qType) {
             case QTYPE.R_POST_RSOP:
-                if(sc){
+                if(sc == 1){
                     scStr = EmbeddedData.getValue(EMLOCALE.SHARED_BY); 
                 }
                 break;
 
             case QTYPE.R_POST_RSO:
-                scStr = (sc) ? EmbeddedData.getValue(EMLOCALE.SHARE) : EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
-                //No Break!
-
-            case QTYPE.R_POST_RSNS: 
-                if(!sc){            
-                    // For a fraction of the cases , we change "no share" to "no see"
-                    var changeSC = Math.random() < EMMISC.Q
-                    if (changeSC){
-                        console.log(`For ${this.imgID}, changing no-share to no-see`);
-                        var choices = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
-                        choices[this.imgID] = -1; //Flag to indicate that we showed "no see" to the receiver.
-                        EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, choices)
-                        scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
-                    } else {
-                        scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE);
-                    }
-                } else {
+                if (sc == 1){
                     scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                } else { //sc == 0
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
+                }
+                break;
+                
+            case QTYPE.R_POST_RSNS:
+                if (sc == 1){
+                    scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                } else if (sc == -1){
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
+                } else { //sc == 0
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE)
                 }
                 break;
 
@@ -310,7 +306,6 @@ class ImgQuestion {
 
         // Whether this page corresponds to the list of true stories or false stories
         let page = ImgProperties.toBoolean(EmbeddedData.getValue(EMMISC.PAGE)); 
-
         console.log(`Loading all ${page} stories`);
         let images = EmbeddedData.getObj(EMQLIST.IMAGES).filter(d => d.veracity == page);
         let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);

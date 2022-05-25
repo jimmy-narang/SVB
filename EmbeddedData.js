@@ -48,8 +48,7 @@ var EMMISC = Object.freeze({
     IS_SET: "is_set", // whether we have decided which images to show in each round.
     PAGE: "page", // Whether this (veracity) page shows list of true or false stories 
     MAXQ: 20, // length of the priors / sharing_choices round.
-    //TODO: This should be an ED parameter
-    Q: 0.34 // Probability with which we change the label of a "no share" to "no see"
+    Q_NO_SEE: "q_no_see" // Probability with which we change the label of a "no share" to "no see"
 });
 
 var EMSURVEYTYPE = Object.freeze({

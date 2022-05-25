@@ -34,8 +34,7 @@
             });
         });
     } else {
-
-        //TODO: add this to EMMISC
+        //TODO: add this to EMMISC?
         sc_complete = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("sc_complete"));
         if (sc_complete == 1) {
             // Image selection for some rounds has to wait until sharing-choices
@@ -101,16 +100,12 @@
     }
 
     // Assign stories for sharer rounds _after_ priors & sharing choices 
-    // have been elicited.
+    // have been elicited. 
+    // NOTE: This function is NOT idempotent. The caller needs to ensure 
+    // it isn't called twice.
     function assignSharers(images, list_map) {
 
-        let arr_s_exp = EmbeddedData.getObj(EMQLIST.S_EXP)
-        if (arr_s_exp && arr_s_exp.length > 0) {
-            console.info("Assignments appear to have already been made. Returning.")
-            return;
-        }
-
-        let {arr, remainder} = assignBySharingChoice(sc, list_map.get(EMQLIST.S_EXP))
+        let {arr, remainder} = assignBySharingChoice(images, list_map.get(EMQLIST.S_EXP))
         console.log("saving the following for s_exp & s_vir: " + arr.map(x => x.imgID))
         EmbeddedData.saveObj(EMQLIST.S_EXP, arr);
 
@@ -123,20 +118,29 @@
 
         // Allocate image lists for other rounds as usual, using leftover shared and unshared imgs.
         // Because we used "splice", shared and not_shared contain remainders.
-        assignAsSpecified(remainder, list_map);
+        assignAsRandom(remainder, list_map);
     }
 
     // Assign stories for receiver rounds
+    // NOTE: This function is NOT idempotent. The caller needs to ensure 
+    // it isn't called twice.
     function assignReceivers(images, list_map) {
 
-        // Assign stories for the revealed sharing round
-        let arr_rsc = EmbeddedData.getObj(EMQLIST.R_RSC) 
-        if (arr_rsc && arr_rsc.length > 0) {
-            console.info("Assignments appear to have already been made. Returning.")
-            return;
-        }
+        let {arr, remainder} = assignBySharingChoice(images, list_map.get(EMQLIST.R_RSC))
 
-        let {arr, remainder} = assignBySharingChoice(sc, list_map.get(EMQLIST.R_RSC))
+        // Switch a fraction (Q) of no-share stories in revealed-sharing to no-sees. 
+        // This will matter only for RSNS, not RSO.
+        let q = parseFloat(EmbeddedData.getValue(EMMISC.Q_NO_SEE))
+        if(q > 0){
+            sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)
+            arr.forEach(d => {
+                if (sc[d.imgID] != 1 && Math.random() < q) {
+                    console.log(`For ${d.imgID}, changing no-share to no-see`);
+                    sc[d.imgID] = -1; //Flag for "no-see"
+                }
+            });
+            EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc)
+        }
         console.log("saving the following for r_rsc: " + arr.map(x => x.imgID))
         EmbeddedData.saveObj(EMQLIST.R_RSC, arr);
         list_map.delete(EMQLIST.R_RSC);
@@ -151,7 +155,7 @@
         list_map.delete(EMQLIST.S_VIR)
 
         // Distribute the remaining images among the other rounds.
-        assignAsSpecified(remainder, list_map);
+        assignAsRandom(remainder, list_map);
     }
 
 
