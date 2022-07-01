@@ -148,10 +148,10 @@
         // For the virality round, reuse the sharer's list
         let arr_vir = EmbeddedData.getObj(EMQLIST.S_VIR) 
         if (arr_vir && arr_vir.length > 0) {
-            console.info("Assignments appear to have already been made. Returning.")
-            return;
+            console.info(EMQLIST.S_VIR + " Assignment appears to have already been made. Skipping.")
+        } else {
+            EmbeddedData.saveObj(EMQLIST.S_VIR, arr_vir);
         }
-        EmbeddedData.saveObj(EMQLIST.S_VIR, arr_vir);
         list_map.delete(EMQLIST.S_VIR)
 
         // Distribute the remaining images among the other rounds.

@@ -178,7 +178,14 @@ class ImgQuestion {
         that.src = this.imgProperties.qualtricsURL;
         // @ts-ignore
         that.style = this.imgProperties.style;
+        // @ts-ignore
         that.setAttribute("data-imgid", this.imgID);
+        
+        //If the image has a caption, append it.
+        var capdiv = document.createElement( 'div' );
+        capdiv.innerHTML = this._imgProp.caption 
+        // @ts-ignore
+        that.after(capdiv);
     }
 
     /* EVENT HANDLERS */
