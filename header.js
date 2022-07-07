@@ -180,7 +180,8 @@ function getImgDB(data) {
             fakedByUs: ImgProperties.toBoolean(d.fakedByUs),
             veracity: ImgProperties.toBoolean(d.veracity),
             style: d.style,
-            forQType: d.forQType
+            forQType: d.forQType,
+            caption: d.caption
         };
     });
 
