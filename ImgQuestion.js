@@ -251,6 +251,13 @@ class ImgQuestion {
 
         prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
         this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
+
+        //BONUS: If this page contains a SoB question that needs to be hidden if sc != 1,
+        // We do so here.
+        //if(sc != 1){
+            //Identify the SOB MC question. For now, we use a rather hacky approach where
+            Qualtrics.SurveyEngine.setEmbeddedData("sc_partner", sc)
+        //}
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.
