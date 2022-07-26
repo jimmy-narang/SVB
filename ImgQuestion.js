@@ -229,19 +229,24 @@ class ImgQuestion {
 
             case QTYPE.R_POST_RSO:
                 if (sc == 1){
-                    scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                    //scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                    scStr = "${q://QID535/ChoiceDescription/3}"
                 } else { //sc == 0
-                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
+                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
+                    scStr = "${q://QID535/ChoiceDescription/5}"
                 }
                 break;
                 
             case QTYPE.R_POST_RSNS:
                 if (sc == 1){
-                    scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                    //scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
+                    scStr = "${q://QID535/ChoiceDescription/3}"
                 } else if (sc == -1){
-                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
+                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
+                    scStr = "${q://QID535/ChoiceDescription/10}"
                 } else { //sc == 0
-                    scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE)
+                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE);
+                    scStr = "${q://QID535/ChoiceDescription/4}"
                 }
                 break;
 
@@ -255,7 +260,7 @@ class ImgQuestion {
         //BONUS: If this page contains a SoB question that needs to be hidden if sc != 1,
         // We do so here.
         //if(sc != 1){
-            //Identify the SOB MC question. For now, we use a rather hacky approach where
+            //Identify the SOB MC question. For now, we use a rather hacky approach
             Qualtrics.SurveyEngine.setEmbeddedData("sc_partner", sc)
         //}
     }
@@ -293,8 +298,13 @@ class ImgQuestion {
     onLoadVeracityQV1() {
 
         // Get the locale-specific, formatted strings for "here", "true", "false" etc.
-        let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
-        let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
+        
+        //let here_lc = EmbeddedData.getValue(EMLOCALE.HERE);
+        //let ver_lc = (this.imgProperties.veracity) ? EmbeddedData.getValue(EMLOCALE.TRUE) : EmbeddedData.getValue(EMLOCALE.FALSE);
+        
+        let here_lc = "${q://QID535/ChoiceDescription/9}";
+        let ver_lc = (this.imgProperties.veracity) ? "${q://QID535/ChoiceDescription/1}" : "${q://QID535/ChoiceDescription/2}";
+        
         let new_txt = this.questionText.replace(BLANK.VERACITY, ver_lc) + '<br>';
 
         // In addition to the story's veracity, we also need to include links to the fact-check, source article, etc.
@@ -304,10 +314,12 @@ class ImgQuestion {
         let style = "";
         if (this.imgProperties.veracity) {
             style = "5px solid #00ff00;"
-            new_txt = new_txt + EmbeddedData.getValue(EMLOCALE.VER_TRUE);
+            //new_txt = new_txt + EmbeddedData.getValue(EMLOCALE.VER_TRUE);
+            new_txt = new_txt + "${q://QID535/ChoiceDescription/8}";
         } else {
             style = "5px solid #ff0000;"
-            let fake_str = (this.imgProperties.fakedByUs) ? EmbeddedData.getValue(EMLOCALE.VER_FAKED) : EmbeddedData.getValue(EMLOCALE.VER_FALSE)
+            //let fake_str = (this.imgProperties.fakedByUs) ? EmbeddedData.getValue(EMLOCALE.VER_FAKED) : EmbeddedData.getValue(EMLOCALE.VER_FALSE)
+            let fake_str = (this.imgProperties.fakedByUs) ? "${q://QID535/ChoiceDescription/6}" : "${q://QID535/ChoiceDescription/7}"
             new_txt = new_txt + fake_str;
         }
         this.questionText = new_txt.replace(BLANK.LINKS, links);
