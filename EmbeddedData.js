@@ -23,6 +23,7 @@ var EMDICT = Object.freeze({
     SHARING_CHOICES: "sharing_choices", //dict of sharing_choices (sharer or receiver)
     PRIORS: "priors", //dict of own priors (sharer or receiver)
     SHARER_PRIORS: "sharer_priors", // dict of sharer's priors (receiver only)
+    SHARER_MSGS: "sharer_msgs", // msgs sharer passes along with sharing choices. 
     SIGNALS: "signals", // dict of signals shown to the sharer
     LINK_CLICKS: "link_clicks" // How often was each link clicked.
 });

@@ -35,6 +35,7 @@ var QTYPE = Object.freeze({
 var BLANK = Object.freeze({
     PRIOR: "_____", //own prior
     SHARING_CHOICE: "-----",
+    SHARING_MSG: "#####",
     SIGNAL: "XXXXX", // Because signal and sharer prior will never be shown together. 
     SHARER_PRIOR: "XXXXX",
     LINKS: "--here--",
@@ -123,12 +124,14 @@ class ImgQuestion {
 
     get response() {
 
+        let qid = "#" + this.QID;
+
         switch (this.qType) {
 
             // Binary radio button
             case QTYPE.C_PRIOR_BIN:
                 // @ts-ignore
-                return parseInt(jQuery("#" + this.QID + " :checked").val()) == 1;
+                return parseInt(jQuery(qid + " :checked").val()) == 1;
 
                 // Slider question
             case QTYPE.C_PRIOR:
@@ -139,13 +142,16 @@ class ImgQuestion {
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
                 // @ts-ignore
-                return jQuery("#" + this.QID + " input").val();
+                return jQuery(qid + " input").val();
 
                 // Checkbox question with one option
             case QTYPE.S_SHARE:
                 // @ts-ignore
-                return jQuery("#" + this.QID + " :checked").length;
-
+                let msg = jQuery(qid + " textarea").val()
+                return {
+                    choice: jQuery(qid + " :checked").length,
+                    msg: (msg == undefined ? '' : msg)
+                }
             default:
                 return null;
         }
@@ -218,12 +224,17 @@ class ImgQuestion {
 
         var sc = parseInt(EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID]);
         var scStr = '';
+        var scMsg = '';
         var prior = null;
 
         switch (this.qType) {
             case QTYPE.R_POST_RSOP:
                 if(sc == 1){
-                    scStr = EmbeddedData.getValue(EMLOCALE.SHARED_BY); 
+                    scStr = EmbeddedData.getValue(EMLOCALE.SHARED_BY);
+                    scMsg = EmbeddedData.getObj(EMDICT.SHARER_MSGS)[this.imgID];
+                    if(scMsg === undefined){
+
+                    }
                 }
                 break;
 
@@ -240,7 +251,8 @@ class ImgQuestion {
             case QTYPE.R_POST_RSNS:
                 if (sc == 1){
                     //scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
-                    scStr = "${q://QID535/ChoiceDescription/3}"
+                    scStr = "${q://QID535/ChoiceDescription/3}";
+                    scMsg = EmbeddedData.getObj(EMDICT.SHARER_MSGS)[this.imgID];
                 } else if (sc == -1){
                     //scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
                     scStr = "${q://QID535/ChoiceDescription/10}"
@@ -255,7 +267,7 @@ class ImgQuestion {
         }
 
         prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
-        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
+        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr).replace(BLANK.SHARING_MSG, scMsg);
 
         //BONUS: If this page contains a SoB question that needs to be hidden if sc != 1,
         // We do so here.

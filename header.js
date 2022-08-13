@@ -40,8 +40,12 @@ function onSubmitAnswer() {
 
         case QTYPE.S_SHARE:
             var sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES);
-            sc[Q.imgID] = Q.response;
+            sc[Q.imgID] = Q.response.choice;
             EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc);
+
+            var s_msg = EmbeddedData.getObj(EMDICT.SHARER_MSGS);
+            s_msg[Q.imgID] = Q.response.msg;
+            EmbeddedData.saveObj(EMDICT.SHARER_MSGS, s_msg);
             return;
 
             //NOTE: The signal is saved onLoad(), and not onSubmit(). 
