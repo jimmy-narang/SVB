@@ -14,10 +14,10 @@
     if (no_libs || !is_set) {
         jQuery.when(
             jQuery.getScript("https://d3js.org/d3.v7.min.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/EmbeddedData.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgProperties.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@latest/ImgQuestion.js"),
-            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@main/header.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@Aug2022/EmbeddedData.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@Aug2022/ImgProperties.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@Aug2022/ImgQuestion.js"),
+            jQuery.getScript("https://cdn.jsdelivr.net/gh/jimmy-narang/SVB@Aug2022/header.js"),
             jQuery.Deferred(function (deferred) {
                 jQuery(deferred.resolve);
             })
@@ -56,8 +56,8 @@
         var list_map = null;
         var n_sharer_rounds = 3 // Number of sharer rounds that use a partition of stories.
         var n_receiver_rounds = 3 // Number of receiver rounds that use a partition of stories.  
-        var len_sharer = Math.floor(length(images) / n_sharer_rounds);
-        var len_receiver = Math.floor(length(images) / n_receiver_rounds);
+        var len_sharer = Math.floor(images.length / n_sharer_rounds);
+        var len_receiver = Math.floor(images.length / n_receiver_rounds);
 
         if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
             // This is a sharer's survey
