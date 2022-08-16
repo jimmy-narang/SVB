@@ -54,14 +54,17 @@
         console.log("Creating image lists for other rounds");
         var images = EmbeddedData.getObj(EMQLIST.IMAGES);
         var list_map = null;
+        var n_sharer_rounds = 3 // Number of sharer rounds that use a partition of stories.
+        var n_receiver_rounds = 3 // Number of receiver rounds that use a partition of stories.  
+        var len_sharer = Math.floor(length(images) / n_sharer_rounds);
+        var len_receiver = Math.floor(length(images) / n_receiver_rounds);
 
-        //TODO: These counts shouldn't be hard-coded. Change later.
         if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
             // This is a sharer's survey
             list_map = new Map([
-                [EMQLIST.S_EXP, 4],
-                [EMQLIST.S_SVB, 4],
-                [EMQLIST.S_VIR, 4]
+                [EMQLIST.S_EXP, len_sharer],
+                [EMQLIST.S_SVB, len_sharer],
+                [EMQLIST.S_VIR, len_sharer] // Wasted. We use the same set for VIR as EXP now.
             ]);
 
             //assignAsRandom(images, list_map);
@@ -70,10 +73,9 @@
         } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
             // This is a receiver's survey
             list_map = new Map([
-                [EMQLIST.R_RSB, 6], // Used for RSB or RSBB
-                [EMQLIST.R_RSC, 6], // Used for RSO or RSNS
-                [EMQLIST.S_VIR, 4], // Same set as sharer
-                [EMQLIST.R_SS, 6] // Used for signals (strong)
+                [EMQLIST.R_RSB, len_receiver], // Used for RSB or RSBB
+                [EMQLIST.R_RSC, len_receiver], // Used for RSO or RSNS
+                [EMQLIST.R_SS, len_receiver] // Used for signals (strong)
             ]);
             assignReceivers(images, list_map);
         } else {
@@ -142,14 +144,14 @@
         // This will matter only for RSNS, not RSO.
         let q = parseFloat(EmbeddedData.getValue(EMMISC.Q_NO_SEE))
         if(q > 0){
-            sc = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)
+            sc_dict = EmbeddedData.getObj(EMDICT.SHARING_CHOICES)
             arr.forEach(d => {
-                if (sc[d.imgID] != 1 && Math.random() < q) {
+                if (sc_dict[d.imgID] != 1 && Math.random() < q) {
                     console.log(`For ${d.imgID}, changing no-share to no-see`);
-                    sc[d.imgID] = -1; //Flag for "no-see"
+                    sc_dict[d.imgID] = -1; //Flag for "no-see"
                 }
             });
-            EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc)
+            EmbeddedData.saveObj(EMDICT.SHARING_CHOICES, sc_dict)
         }
         console.log("saving the following for r_rsc: " + arr.map(x => x.imgID))
         EmbeddedData.saveObj(EMQLIST.R_RSC, arr);

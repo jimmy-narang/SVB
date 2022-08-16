@@ -35,7 +35,6 @@ var QTYPE = Object.freeze({
 var BLANK = Object.freeze({
     PRIOR: "_____", //own prior
     SHARING_CHOICE: "-----",
-    SHARING_MSG: "#####",
     SIGNAL: "XXXXX", // Because signal and sharer prior will never be shown together. 
     SHARER_PRIOR: "XXXXX",
     LINKS: "--here--",
@@ -214,67 +213,57 @@ class ImgQuestion {
 
         // Show the generated signal along with a reminder of the receiver's prior.
         // Find the localized string for TRUE or FALSE 
-        var signal_str = (signal) ? EmbeddedData.getValue("TRUE") : EmbeddedData.getValue("FALSE")
+        var signal_str = (signal) ? EmbeddedData.getValue(EMLOCALE.BOT_TRUE_STR) : EmbeddedData.getValue(EMLOCALE.BOT_FALSE_STR)
         var prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
         this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SIGNAL, signal_str);
     }
 
-    //Applicable to Receivers, except in the case of sharer's explanations.
-    onLoadRevealedShareQ() {
+    
+    static constructSharerCaption(story_id, qtype){
 
-        var sc = parseInt(EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[this.imgID]);
+        var sc = parseInt(EmbeddedData.getObj(EMDICT.SHARING_CHOICES)[story_id]);
         var scStr = '';
         var scMsg = '';
-        var prior = null;
 
-        switch (this.qType) {
-            case QTYPE.R_POST_RSOP:
-                if(sc == 1){
-                    scStr = EmbeddedData.getValue(EMLOCALE.SHARED_BY);
-                    scMsg = EmbeddedData.getObj(EMDICT.SHARER_MSGS)[this.imgID];
-                    if(scMsg === undefined){
+        // Any message that the sharer passed along. Errors are ignored but logged.
+        try {
+            scMsg = EmbeddedData.getObj(EMDICT.SHARER_MSGS)[story_id].trim();
+        } catch (error) {
+            console.log(error);
+        }
 
-                    }
-                }
-                break;
+        switch (qtype) {
 
             case QTYPE.R_POST_RSO:
                 if (sc == 1){
-                    //scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
-                    scStr = "${q://QID535/ChoiceDescription/3}"
-                } else { //sc == 0
-                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_OR_NOSHARE);
-                    scStr = "${q://QID535/ChoiceDescription/5}"
+                    scStr = (scMsg) ? EmbeddedData.getValue(EMLOCALE.SHARE_MSG_STR) + scMsg : EmbeddedData.getValue(EMLOCALE.SHARE_STR);
+                } else { //sc == 0 or -1
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_NOSHARE_STR);
                 }
                 break;
                 
             case QTYPE.R_POST_RSNS:
                 if (sc == 1){
-                    //scStr = EmbeddedData.getValue(EMLOCALE.SHARE)
-                    scStr = "${q://QID535/ChoiceDescription/3}";
-                    scMsg = EmbeddedData.getObj(EMDICT.SHARER_MSGS)[this.imgID];
+                    scStr = (scMsg) ? EmbeddedData.getValue(EMLOCALE.SHARE_MSG_STR) + scMsg : EmbeddedData.getValue(EMLOCALE.SHARE_STR)
                 } else if (sc == -1){
-                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSEE);
-                    scStr = "${q://QID535/ChoiceDescription/10}"
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSEE_STR);
                 } else { //sc == 0
-                    //scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE);
-                    scStr = "${q://QID535/ChoiceDescription/4}"
+                    scStr = EmbeddedData.getValue(EMLOCALE.NOSHARE_STR);
                 }
                 break;
 
             default:
-                throw new TypeError("Revealed-share handler called for invalid question type " + this.qType);
+                throw new TypeError("Revealed-share handler called for invalid question type " + qtype);
         }
 
-        prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
-        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr).replace(BLANK.SHARING_MSG, scMsg);
+        return scStr;
+    } 
 
-        //BONUS: If this page contains a SoB question that needs to be hidden if sc != 1,
-        // We do so here.
-        //if(sc != 1){
-            //Identify the SOB MC question. For now, we use a rather hacky approach
-            Qualtrics.SurveyEngine.setEmbeddedData("sc_partner", sc)
-        //}
+    //Applicable to Receivers, except in the case of sharer's explanations.
+    onLoadRevealedShareQ() {
+        var prior = EmbeddedData.getObj(EMDICT.PRIORS)[this.imgID];
+        var scStr = ImgQuestion.constructSharerCaption(this.imgID, this.qType);
+        this.questionText = this.questionText.replace(BLANK.PRIOR, prior).replace(BLANK.SHARING_CHOICE, scStr);
     }
 
     //Applicable to Receivers, except in the case of sharer's explanations.

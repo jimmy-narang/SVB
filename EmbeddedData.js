@@ -14,7 +14,14 @@ var EMLOCALE = Object.freeze({
     HERE: "HERE", // See "here",
     VER_FAKED: "VER_FAKED", //"In fact, it was faked/photoshopped by us."
     VER_TRUE: "VER_TRUE", //"See here for the original news article."
-    VER_FALSE: "VER_FALSE" // See here for a fact-check
+    VER_FALSE: "VER_FALSE", // See here for a fact-check
+    SHARE_STR: "share_str",
+    SHARE_MSG_STR: "share_msg_str",
+    NOSHARE_STR: "noshare_str",
+    NOSEE_STR: "nosee_str",
+    NOSEE_NOSHARE_STR: "nosee_noshare_str",
+    BOT_TRUE_STR: "bot_true_str",
+    BOT_FALSE_STR: "bot_false_str"
 });
 
 // Names of dictionaries where we store WHICH images to show in each round,
