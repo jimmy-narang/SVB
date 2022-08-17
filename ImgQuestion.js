@@ -25,7 +25,11 @@ var QTYPE = Object.freeze({
     R_POST_RSNS: 'R_POST_RSNS', //Receiver's posterior after {R}evealing  {S}harer's decision either way: {S}hare/{N}ot share.
     R_POST_RSOP: 'R_POST_RSOP', //{R}eveal {S}hares {O}nly, but only elicit Receiver's posterior directly. 
     R_POST_SW: 'R_POST_SW', //Receiver's posterior after seeing a (weak) signal 
-    R_POST_SS: 'R_POST_SS' //Receiver's posterior after seeing a (strong) signal
+    R_POST_SS: 'R_POST_SS', //Receiver's posterior after seeing a (strong) signal
+    R_PRIOR_RSCL: 'R_PRIOR_RSCL', // Priors for revealed (long) rounds.
+    R_PRIOR_RSBL: 'R_PRIOR_RSBL',
+    R_PRIOR_SSL: 'R_PRIOR_SSL'
+
 });
 
 /**
@@ -140,6 +144,9 @@ class ImgQuestion {
             case QTYPE.R_POST_RSB:
             case QTYPE.R_POST_SW:
             case QTYPE.R_POST_SS:
+            case QTYPE.R_PRIOR_RSCL:
+            case QTYPE.R_PRIOR_RSBL:
+            case QTYPE.R_PRIOR_SSL:
                 // @ts-ignore
                 return jQuery(qid + " input").val();
 
@@ -412,7 +419,7 @@ class ImgQuestion {
                 return;
 
             default:
-                //Do nothing
+                //E.g. R_PRIOR_*: Do nothing
                 return;
         }
     }

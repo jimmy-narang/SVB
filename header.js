@@ -33,6 +33,10 @@ function onSubmitAnswer() {
 
         case QTYPE.C_PRIOR:
         case QTYPE.C_PRIOR_BIN:
+        case QTYPE.R_PRIOR_RSCL:
+        case QTYPE.R_PRIOR_RSBL:
+        case QTYPE.R_PRIOR_SSL:
+        
             var priors = EmbeddedData.getObj(EMDICT.PRIORS);
             priors[Q.imgID] = Q.response;
             EmbeddedData.saveObj(EMDICT.PRIORS, priors);
@@ -122,16 +126,19 @@ function loadPage() {
 
         case QTYPE.R_POST_RSB:
         case QTYPE.R_POST_RSBB:
+        case QTYPE.R_PRIOR_RSBL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSB));
             break;
 
         case QTYPE.R_POST_RSNS:
         case QTYPE.R_POST_RSO:
         case QTYPE.R_POST_RSOP:
+        case QTYPE.R_PRIOR_RSCL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSC));
             break;
 
         case QTYPE.R_POST_SS:
+        case QTYPE.R_PRIOR_SSL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_SS));
             break;
 
@@ -223,47 +230,4 @@ function assignAsRandom(images, list_map) {
         EmbeddedData.saveObj(round_name, arr);
         console.log("For " + round_name + ", saved (random) arr of length " + arr.length);
     });
-}
-
-// PRESERVE FOR BACKWARD COMPATIBILITY
-// Now create image lists for all other rounds. 
-// For sharers, assignment is random; for receivers, it is specified by the DB.
-function assignImgsToRounds() {
-
-    console.log("Creating image lists for other rounds");
-    var images = EmbeddedData.getObj(EMQLIST.IMAGES);
-    var list_map = null;
-
-    //TODO: These counts shouldn't be hard-coded. Change later.
-    if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.SHARER) {
-        // This is a sharer's survey
-        list_map = new Map([
-            [EMQLIST.S_EXP, 4],
-            [EMQLIST.S_SVB, 4],
-            [EMQLIST.S_VIR, 4]
-        ]);
-        assignAsRandom(images, list_map);
-
-    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER) {
-        // This is a receiver's survey
-        list_map = new Map([
-            [EMQLIST.R_RSB, 5], // This is RSB or RSBB
-            [EMQLIST.R_RSC, 5], //This is RSO or RSNS
-            [EMQLIST.R_SW, 5],
-            [EMQLIST.R_SS, 5],
-        ]);
-        assignAsSpecified(images, list_map);
-    } else if (EmbeddedData.getSurveyType() == EMSURVEYTYPE.RECEIVER_SIMPLIFIED) {
-        // This is a receiver's survey
-        list_map = new Map([
-            [EMQLIST.R_RSB, 5], // This is RSB or RSBB
-            [EMQLIST.R_RSC, 10], //This is RSO, RSNS or RSOP
-            [EMQLIST.R_SS, 5]
-        ]);
-        assignAsRandom(images, list_map);
-        //assignGreedySharing(images, list_map);
-    }
-    
-    initializeED();
-    console.log("images assignment complete.");
 }
