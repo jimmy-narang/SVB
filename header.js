@@ -126,7 +126,6 @@ function loadPage() {
 
         case QTYPE.R_POST_RSB:
         case QTYPE.R_POST_RSBB:
-        case QTYPE.R_PRIOR_RSBL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSB));
             break;
 
@@ -138,7 +137,6 @@ function loadPage() {
             break;
 
         case QTYPE.R_POST_SS:
-        case QTYPE.R_PRIOR_SSL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_SS));
             break;
 
@@ -163,9 +161,23 @@ function loadPage() {
         case QTYPE.C_PRIOR_BIN:
         case QTYPE.S_SHARE:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.IMAGES));
-            // @ts-ignore
             jQuery(".QuestionOuter input").change(onSubmitAnswer);
             break;
+
+        case QTYPE.R_PRIOR_RSBL:
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSB));
+            jQuery(".QuestionOuter input").change(onSubmitAnswer);
+            break;
+
+        case QTYPE.R_PRIOR_RSCL:
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSC));
+            jQuery(".QuestionOuter input").change(onSubmitAnswer);
+            break;
+
+        case QTYPE.R_PRIOR_SSL:
+            loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_SS));
+            jQuery(".QuestionOuter input").change(onSubmitAnswer);
+            break;   
 
         case QTYPE.C_VERACITY:
             loadVeracityPage();
