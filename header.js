@@ -131,8 +131,6 @@ function loadPage() {
 
         case QTYPE.R_POST_RSNS:
         case QTYPE.R_POST_RSO:
-        case QTYPE.R_POST_RSOP:
-        case QTYPE.R_PRIOR_RSCL:
             loadImgQsOnPage(EmbeddedData.getObj(EMQLIST.R_RSC));
             break;
 
